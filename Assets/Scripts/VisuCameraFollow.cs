@@ -2,17 +2,6 @@ using UnityEngine;
 
 namespace Visu
 {
-    // VisuCameraFollow.cs
-    // Last Update: April 20th, 2024
-    // Author: Cassio Polegatto
-    //
-    // Description:
-    // Enhance your projects with smooth and dynamic camera tracking functionality. 
-    // This script ensures that the camera smoothly follows its target.
-    // Integrate it into your projects and customize it to fit your specific needs.
-    // Your support is greatly appreciated!
-    // Thank you!
-
     public class VisuCameraFollow : MonoBehaviour
     {
         [Tooltip("The target object followed by the Camera")]
@@ -26,6 +15,11 @@ namespace Visu
         private Vector3 initialCameraPosition;
         public Vector3 cameraOffset;
         public float smoothFactor = 0.2f;
+
+        [Tooltip("The minimum bounds for the camera's position")]
+        public Vector2 minBounds;
+        [Tooltip("The maximum bounds for the camera's position")]
+        public Vector2 maxBounds;
 
         void Awake()
         {
@@ -46,44 +40,42 @@ namespace Visu
 
         void FindCamera()
         {
-            // If Camera is already set, return
             if (myCamera != null)
                 return;
 
-            // Attempt to get the Camera component attached to this object
             if (TryGetComponent(out Camera foundCamera))
             {
                 myCamera = foundCamera;
                 Debug.Log("Camera assigned automatically to the component of the object.");
                 return;
             }
-            // Attempt to assign the main camera
             else if ((myCamera = Camera.main) != null)
             {
                 Debug.Log("Main Camera assigned automatically.");
                 return;
             }
 
-            // If neither Camera component nor main camera is found, log an error
             Debug.LogError("No camera found!");
-            enabled = false; // Disable the script if camera is not found
+            enabled = false;
         }
 
         private void LateUpdate()
         {
-            // Check if target or camera is null
             if (target == null || myCamera == null)
                 return;
 
-            // Find next position based on target's position
+            // Find next position based on target's position and camera offset
             Vector3 nextPosition = target.position + initialCameraPosition + cameraOffset;
 
             // Smooth movement
             Vector3 smoothedPosition = Vector3.SmoothDamp(myCamera.transform.position, nextPosition, ref velocity, smoothFactor);
 
+            // Clamp the position within the specified bounds
+            smoothedPosition.x = Mathf.Clamp(smoothedPosition.x, minBounds.x, maxBounds.x);
+            smoothedPosition.y = Mathf.Clamp(smoothedPosition.y, minBounds.y, maxBounds.y);
+
             // Update camera position to follow target
             myCamera.transform.position = smoothedPosition;
-
         }
     }
 }

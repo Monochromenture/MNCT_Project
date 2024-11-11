@@ -255,7 +255,7 @@ Transform:
   m_GameObject: {fileID: 1032590316}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.82678115, y: 1.3825836, z: -0.050034683}
+  m_LocalPosition: {x: 0.8267801, y: 1.382584, z: -0.050034683}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -353,7 +353,7 @@ Transform:
   m_GameObject: {fileID: 1059571077}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.83, y: 0.07, z: -0.050034683}
+  m_LocalPosition: {x: -0.82999647, y: 0.07, z: -0.050034683}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -581,7 +581,7 @@ Transform:
   m_GameObject: {fileID: 1428169178}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.4, y: -0.8, z: -0.050034683}
+  m_LocalPosition: {x: -0.3999983, y: -0.7999996, z: -0.050034683}
   m_LocalScale: {x: 0.99999994, y: 0.99999994, z: 0.99999994}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -841,7 +841,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -917,6 +917,8 @@ MonoBehaviour:
   myCamera: {fileID: 1708187213}
   cameraOffset: {x: 0, y: 0, z: 0}
   smoothFactor: 0.2
+  minBounds: {x: -3, y: -3}
+  maxBounds: {x: 3, y: 2.5}
 --- !u!1 &1752261874
 GameObject:
   m_ObjectHideFlags: 0
@@ -944,7 +946,7 @@ Transform:
   m_GameObject: {fileID: 1752261874}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.25, y: -0.72, z: -0.050034683}
+  m_LocalPosition: {x: -0.24999553, y: -0.7199999, z: -0.050034683}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1104,6 +1106,8 @@ MonoBehaviour:
   PlayerSr: {fileID: 531502530}
   health: 8
   maxHealth: 8
+  minBounds: {x: -11, y: -5}
+  maxBounds: {x: 11, y: 5}
 --- !u!61 &2146597222
 BoxCollider2D:
   m_ObjectHideFlags: 0

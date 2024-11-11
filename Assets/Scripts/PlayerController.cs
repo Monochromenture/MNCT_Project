@@ -20,6 +20,9 @@ public class PlayerController : MonoBehaviour
     public SpriteRenderer PlayerSr;
 
     public float health, maxHealth;
+    public Vector2 minBounds; // 移動的最小邊界
+    public Vector2 maxBounds; // 移動的最大邊界
+
 
     public static event Action OnPlayerDamage;
     public static event Action OnPlayerDeath;
@@ -34,6 +37,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         PlayerMove();
+        ClampPlayerPosition(); // 確保玩家不會超出邊界
     }
 
      
@@ -89,6 +93,16 @@ public class PlayerController : MonoBehaviour
         }
 
     }
+
+    private void ClampPlayerPosition()
+    {
+        Vector3 position = transform.position;
+        position.x = Mathf.Clamp(position.x, minBounds.x, maxBounds.x);
+        position.y = Mathf.Clamp(position.y, minBounds.y, maxBounds.y);
+        transform.position = position;
+    }
+
+
 
     public void TakeDamage(float amount) 
     { 
