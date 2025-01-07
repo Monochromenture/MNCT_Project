@@ -1,53 +1,80 @@
+ï»¿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class WeaponSlotManager : MonoBehaviour
 {
-    public Image weaponSlot1;  // ·í«eªZ¾¹¹Ï¤ù
-    public Image weaponSlot2;  // ³Æ¥ÎªZ¾¹¹Ï¤ù
-    public Text weaponSlot1Text;  // ·í«eªZ¾¹¦WºÙ
-    public Text weaponSlot2Text;  // ³Æ¥ÎªZ¾¹¦WºÙ
+    public Image WeaponImage1;  // å½“å‰æ­¦å™¨å›¾ç‰‡
+    public Image WeaponImage2;  // å‚™ç”¨æ­¦å™¨å›¾ç‰‡
 
-    public WeaponData currentWeapon;  // ·í«eªZ¾¹
-    public WeaponData backupWeapon;   // ³Æ¥ÎªZ¾¹
+    public WeaponData Weapon1;  // æ­¦å™¨1
+    public WeaponData Weapon2;   // æ­¦å™¨2
 
-    public void EquipWeapon(WeaponData newWeapon, bool isPrimary)
-    {
-        if (isPrimary)
-        {
-            currentWeapon = newWeapon;
-            UpdateHUD(weaponSlot1, weaponSlot1Text, currentWeapon);
-        }
-        else
-        {
-            backupWeapon = newWeapon;
-            UpdateHUD(weaponSlot2, weaponSlot2Text, backupWeapon);
-        }
-    }
 
-    private void UpdateHUD(Image slotImage, Text slotText, WeaponData weapon)
-    {
-        slotImage.sprite = weapon.weaponIcon;
-        slotText.text = weapon.weaponName;
-    }
 
     void Update()
     {
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f)  // ·Æ¹«ºu½ü¦V¤W
+        SwitchWeapons();
+    }
+
+
+    // ç‚¹å‡»æ­¦å™¨æ—¶è°ƒç”¨çš„è£…å¤‡æ–¹æ³•
+    public void EquipWeapon(WeaponData newWeapon)
+    {
+        // 1=ç©ºï¼Œçµ¦1
+        if (Weapon1 == null)
         {
-            SwitchWeapons();
+            Weapon1 = newWeapon;
+            UpdateHUD(WeaponImage1, Weapon1);
+            return;
         }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f)  // ·Æ¹«ºu½ü¦V¤U
+
+        // 1ä¸æ˜¯æ–°ï¼Œ2ç©ºï¼Œçµ¦2
+        if (Weapon1 != newWeapon && Weapon2 == null)
         {
-            SwitchWeapons();
+            Weapon2 = newWeapon;
+            UpdateHUD(WeaponImage2, Weapon2);
+        }
+
+        // 1æ˜¯æ–°ï¼Œåœ
+        if (Weapon1 == newWeapon )
+        {
+            return;
+        }
+        // 2æ˜¯æ–°ï¼Œåœ
+        if (Weapon2 == newWeapon)
+        {
+            return;
+        }
+
+        // 1,2ä¸æ˜¯æ–°
+        else if (Weapon2 != newWeapon && Weapon1 != newWeapon )
+        {
+            // å¦‚æžœ Slot2 ä¸Žç‚¹å‡»çš„æ­¦å™¨ç›¸åŒï¼Œæ›¿æ¢ Slot1
+            Weapon1 = newWeapon;
+            UpdateHUD(WeaponImage1, Weapon1);
         }
     }
 
+    private void UpdateHUD(Image slotImage, WeaponData weapon)
+    {
+        slotImage.sprite = weapon.weaponIcon;
+    }
+
+    
+
+    // åˆ‡æ¢å½“å‰æ­¦å™¨ä¸Žå¤‡ç”¨æ­¦å™¨
     private void SwitchWeapons()
     {
-        // ¤Á´«·í«eªZ¾¹»P³Æ¥ÎªZ¾¹
-        WeaponData temp = currentWeapon;
-        EquipWeapon(backupWeapon, true);
-        EquipWeapon(temp, false);
+        if (Input.GetAxis("Mouse ScrollWheel") > 0f) 
+        {
+
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
+        {
+ 
+        }
     }
+
+
 }

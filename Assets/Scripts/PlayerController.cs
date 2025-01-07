@@ -16,12 +16,12 @@ public class PlayerController : MonoBehaviour
 
     private bool isGrounded;
 
-    public Animator anim;
-    public SpriteRenderer PlayerSr;
+   // public Animator anim;
+   // public SpriteRenderer PlayerSr;
 
     public float health, maxHealth;
-    public Vector2 minBounds; // 移動的最小邊界
-    public Vector2 maxBounds; // 移動的最大邊界
+    //public Vector2 minBounds; // 移動的最小邊界
+    //public Vector2 maxBounds; // 移動的最大邊界
 
 
     public static event Action OnPlayerDamage;
@@ -36,12 +36,12 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        PlayerMove();
-        ClampPlayerPosition(); // 確保玩家不會超出邊界
+        //PlayerMove();
+        // ClampPlayerPosition();
     }
 
      
-    public void PlayerMove()
+   /* public void PlayerMove()
     {
         float moveInput = Input.GetAxis("Horizontal"); 
         rigid2D.velocity = new Vector2(moveInput * speed, rigid2D.velocity.y);
@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            rigid2D.AddForce(new Vector2(0, 500), ForceMode2D.Impulse);
+            rigid2D.AddForce(new Vector2(0, 800), ForceMode2D.Impulse);
         }
 
 
@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour
         transform.position = position;
     }
 
-
+*/
 
     public void TakeDamage(float amount) 
     { 
@@ -120,21 +120,21 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    void OnCollisionEnter2D(Collision2D collision)
+    /*void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Ground")  
         {
             isGrounded = true;
         }
 
-    }
+    }*/
 
     void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == "Ground") 
+        /*if (collision.gameObject.tag == "Ground") 
         {
             isGrounded = false;
-        }
+        }*/
     }
     void OnTriggerEnter2D(Collider2D collision)
     {
