@@ -776,9 +776,8 @@ GameObject:
   - component: {fileID: 122123363}
   - component: {fileID: 122123362}
   - component: {fileID: 122123361}
-  - component: {fileID: 122123360}
   - component: {fileID: 122123359}
-  - component: {fileID: 122123358}
+  - component: {fileID: 122123360}
   - component: {fileID: 122123365}
   m_Layer: 3
   m_Name: Player (1)
@@ -786,19 +785,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &122123358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 122123357}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3928c961806c941d3a53b2a0500a5e73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_IsActive: 0
 --- !u!70 &122123359
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -863,7 +850,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 50
+  m_Mass: 10
   m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 4
@@ -983,9 +970,9 @@ MonoBehaviour:
   PlayerSr: {fileID: 122123363}
   minBounds: {x: 0, y: 0}
   maxBounds: {x: 0, y: 0}
-  moveSpeed: 5
-  jumpForce: 12
-  enableDoubleJump: 1
+  moveSpeed: 10
+  jumpForce: 18
+  enableDoubleJump: 0
 --- !u!1 &128516666
 GameObject:
   m_ObjectHideFlags: 0
@@ -4029,7 +4016,7 @@ GameObject:
   - component: {fileID: 1002842239}
   m_Layer: 6
   m_Name: Ground
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4699,15 +4686,15 @@ GameObject:
   - component: {fileID: 1337142560}
   - component: {fileID: 1337142565}
   - component: {fileID: 1337142567}
+  - component: {fileID: 1337142569}
   - component: {fileID: 1337142568}
-  - component: {fileID: 1337142571}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!95 &1337142560
 Animator:
   serializedVersion: 5
@@ -4809,7 +4796,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 50
+  m_Mass: 10
   m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 4
@@ -4876,18 +4863,25 @@ CapsuleCollider2D:
   m_Offset: {x: 0.07153052, y: 0.06501849}
   m_Size: {x: 4.2929163, y: 5.1899633}
   m_Direction: 0
---- !u!114 &1337142571
+--- !u!114 &1337142569
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1337142559}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3928c961806c941d3a53b2a0500a5e73, type: 3}
+  m_Script: {fileID: 11500000, guid: dfa80cfd57119c44d92fbd632c481ecf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anim: {fileID: 1337142560}
+  PlayerSr: {fileID: 1337142561}
+  minBounds: {x: 0, y: 0}
+  maxBounds: {x: 0, y: 0}
+  moveSpeed: 10
+  jumpForce: 18
+  enableDoubleJump: 1
 --- !u!1 &1371533225
 GameObject:
   m_ObjectHideFlags: 0
