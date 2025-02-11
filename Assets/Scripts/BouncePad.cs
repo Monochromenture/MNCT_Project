@@ -5,12 +5,12 @@ public class BouncePad2D : MonoBehaviour
     public float bounceForce = 80f;  // 彈跳力的強度
     public float bounceDampening = 0.5f;  // 彈跳減速系數，讓彈跳不那麼快速
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        // 確認玩家碰到彈跳墊
-        if (collision.gameObject.CompareTag("Player"))
+        // 確認碰到的是 GroundCheck，並且它的父物件是 Player
+        if (other.name == "GroundCheck" && other.transform.parent.CompareTag("Player"))
         {
-            Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
+            Rigidbody2D playerRb = other.transform.parent.GetComponent<Rigidbody2D>();
 
             if (playerRb != null)
             {
