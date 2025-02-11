@@ -9,19 +9,20 @@ public class WeaponSlotManager : MonoBehaviour
 
     public WeaponData Weapon1;  // 武器1
     public WeaponData Weapon2;   // 武器2
+    public WeaponData Weapon0;   // 武器2
 
 
 
     void Update()
     {
-        SwitchWeapons();
+
     }
 
 
-    // 点击武器时调用的装备方法
+    // 點擊武器時購買方法
     public void EquipWeapon(WeaponData newWeapon)
     {
-        // 1=空，給1
+        // Weapon1為空，給Weapon1
         if (Weapon1 == null)
         {
             Weapon1 = newWeapon;
@@ -29,52 +30,81 @@ public class WeaponSlotManager : MonoBehaviour
             return;
         }
 
-        // 1不是新，2空，給2
+        // Weapon1不是newWeapon，Weapon2為空，給Weapon2
         if (Weapon1 != newWeapon && Weapon2 == null)
         {
             Weapon2 = newWeapon;
             UpdateHUD(WeaponImage2, Weapon2);
+            return;
         }
 
-        // 1是新，停
-        if (Weapon1 == newWeapon )
+        // Weapon1是newWeapon，直接停止
+        if (Weapon1 == newWeapon)
         {
             return;
         }
-        // 2是新，停
+
+        // Weapon2是newWeapon，切換Weapon1和Weapon2
         if (Weapon2 == newWeapon)
         {
+            WeaponData temp = Weapon1;
+            Weapon1 = Weapon2;
+            Weapon2 = temp;
+
+            UpdateHUD(WeaponImage1, Weapon1);
+            UpdateHUD(WeaponImage2, Weapon2);
             return;
         }
 
-        // 1,2不是新
-        else if (Weapon2 != newWeapon && Weapon1 != newWeapon )
+        // 如果Weapon1和Weapon2都不是newWeapon，每次點擊展開替換武器
+        if (Weapon1 != newWeapon && Weapon2 != newWeapon)
         {
-            // 如果 Slot2 与点击的武器相同，替换 Slot1
+            // 用新武器替換Weapon1，原本Weapon1移至Weapon2
+            Weapon2 = Weapon1;
             Weapon1 = newWeapon;
+
             UpdateHUD(WeaponImage1, Weapon1);
+            UpdateHUD(WeaponImage2, Weapon2);
         }
     }
 
+    // 更新屏幕上的武器圖示
+   private void UpdateHUD(Image weaponImage, WeaponData weapon)
+    {
+        if (weapon != null)
+        {
+            weaponImage.sprite = weapon.weaponIcon;  // 設置武器圖示
+            weaponImage.enabled = true;               // 啟用圖示顯示
+        }
+        else
+        {
+            weaponImage.enabled = false;              // 沒有武器時隱藏圖示
+        }
+    }
+
+    public void SwapWeapons()
+    {
+        if (Weapon1 != null || Weapon2 != null)
+        {
+            WeaponData temp = Weapon1;
+            Weapon1 = Weapon2;
+            Weapon2 = temp;
+
+            UpdateHUD(WeaponImage1, Weapon1);
+            UpdateHUD(WeaponImage2, Weapon2);
+        }
+    }
+
+
+    /*
     private void UpdateHUD(Image slotImage, WeaponData weapon)
     {
         slotImage.sprite = weapon.weaponIcon;
-    }
+    }*/
 
-    
 
-    // 切换当前武器与备用武器
-    private void SwitchWeapons()
-    {
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f) 
-        {
 
-        }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-        {
- 
-        }
-    }
+
 
 
 }

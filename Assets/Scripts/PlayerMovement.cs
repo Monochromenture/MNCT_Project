@@ -1,20 +1,13 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEngine.EventSystems.EventTrigger;
-
 
 public class PlayerMovement : MonoBehaviour
 {
-
     public Animator anim;
     public SpriteRenderer PlayerSr;
 
     public Vector2 minBounds; // 移動的最小邊界
     public Vector2 maxBounds; // 移動的最大邊界
-
 
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
@@ -24,6 +17,12 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private bool isGrounded;
     private bool canDoubleJump;
+    private bool jumpPressed = false;  // 記錄是否按下跳躍鍵
+
+    [Header("Ground Check Settings")]
+    public Transform groundCheck;  // 檢查地面的位置
+    public float groundCheckRadius = 0.2f;  // 檢查半徑
+    public LayerMask groundLayer;  // 地面層級
 
     void Start()
     {
@@ -33,7 +32,18 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         MovePlayer();
-        HandleJump();
+        ClampPlayerPosition(); // 限制角色位置
+
+        // 處理跳躍輸入
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpPressed = true;  // 記錄按下跳躍鍵
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        HandleJump();  // 在 FixedUpdate 中處理跳躍
     }
 
     private void MovePlayer()
@@ -41,64 +51,64 @@ public class PlayerMovement : MonoBehaviour
         float moveInput = Input.GetAxis("Horizontal"); // A/D or Left/Right keys
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
-        if (Input.GetKey(KeyCode.D))
-        {
-            if (PlayerSr.flipX == true)
-            {
-                PlayerSr.flipX = false;
-            }
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            if (PlayerSr.flipX == false)
-            {
-                PlayerSr.flipX = true;
-            }
-        }
+        // 角色翻轉
+        if (moveInput > 0 && PlayerSr.flipX) PlayerSr.flipX = false;
+        if (moveInput < 0 && !PlayerSr.flipX) PlayerSr.flipX = true;
 
-        if (Mathf.Abs(moveInput) > 0.1f)
-        {
-            anim.SetBool("Walk", true);
-        }
-        else
-        {
-            anim.SetBool("Walk", false);
-        }
-
+        // 設定走路動畫
+        anim.SetBool("Walk", Mathf.Abs(moveInput) > 0.1f);
     }
 
     private void HandleJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (jumpPressed)
         {
-            if (isGrounded)
+            if (IsGrounded())
             {
                 Jump();
-                canDoubleJump = true; // Reset double jump when grounded
+                canDoubleJump = true; // 重置雙跳
             }
             else if (enableDoubleJump && canDoubleJump)
             {
                 Jump();
-                canDoubleJump = false; // Disable further double jumps
+                canDoubleJump = false; // 禁止再次雙跳
             }
+
+            jumpPressed = false; // 重置跳躍輸入，避免重複觸發
         }
     }
 
     private void Jump()
     {
-        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        rb.velocity = new Vector2(rb.velocity.x, 0f);  // 重置垂直速度，避免連續跳躍影響
+        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);  // 物理跳躍
+    }
+
+    private bool IsGrounded()
+    {
+        // 使用 OverlapCircle 檢查角色是否站在地面上
+        bool grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        // 顯示調試訊息
+        //Debug.Log("IsGrounded: " + grounded);
+
+        return grounded;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Check if player is grounded
-        foreach (ContactPoint2D contact in collision.contacts)
+        // 檢查角色是否落地
+        if (collision.collider.CompareTag("Ground"))
         {
-            if (contact.normal.y > 0.5f) // Collision from below
-            {
-                isGrounded = true;
-                break;
-            }
+            isGrounded = true;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Ground"))
+        {
+            isGrounded = false;
         }
     }
 
@@ -108,12 +118,5 @@ public class PlayerMovement : MonoBehaviour
         position.x = Mathf.Clamp(position.x, minBounds.x, maxBounds.x);
         position.y = Mathf.Clamp(position.y, minBounds.y, maxBounds.y);
         transform.position = position;
-    }
-
-
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        isGrounded = false;
     }
 }

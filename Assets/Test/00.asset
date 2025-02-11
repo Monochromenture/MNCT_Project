@@ -16,3 +16,4 @@ MonoBehaviour:
   weaponIcon: {fileID: 21300000, guid: 5ed79adef40078041ab2a0894146fcb9, type: 3}
   unavailableIcon: {fileID: 21300000, guid: 0fa2c9aba3c1ba740b847469d4bcba32, type: 3}
   damage: 10
+  weaponDescription: "\u9019\u662F\u4E00\u6839\u83F8"
