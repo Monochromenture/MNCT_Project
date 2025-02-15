@@ -12,17 +12,23 @@ public class HealthHeartBar : MonoBehaviour
     private void OnEnable()
     {
         PlayerController.OnPlayerDamage += DrawHearts;
+        PlayerController.OnPlayerRespawn += DrawHearts;  // 訂閱復活事件
     }
+
     private void OnDisable()
     {
         PlayerController.OnPlayerDamage -= DrawHearts;
+        PlayerController.OnPlayerRespawn -= DrawHearts;  // 取消訂閱復活事件
     }
+
 
     private void Start()
     {
         DrawHearts();
 
     }
+
+
 
     public void DrawHearts()
     {
@@ -61,5 +67,8 @@ public class HealthHeartBar : MonoBehaviour
         }
         hearts = new List<HealthHeart>();
     }
+
+
+
 
 }
