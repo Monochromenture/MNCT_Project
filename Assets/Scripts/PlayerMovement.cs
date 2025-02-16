@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -23,6 +22,10 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundCheck;  // 檢查地面的位置
     public float groundCheckRadius = 0.2f;  // 檢查半徑
     public LayerMask groundLayer;  // 地面層級
+
+    // 武器
+    public GameObject weapon1;  // 武器1（向右）
+    public GameObject weapon2;  // 武器2（向左）
 
     void Start()
     {
@@ -54,6 +57,18 @@ public class PlayerMovement : MonoBehaviour
         // 角色翻轉
         if (moveInput > 0 && PlayerSr.flipX) PlayerSr.flipX = false;
         if (moveInput < 0 && !PlayerSr.flipX) PlayerSr.flipX = true;
+
+        // 切換武器
+        if (PlayerSr.flipX)
+        {
+            weapon1.SetActive(false);  // 隱藏武器1
+            weapon2.SetActive(true);   // 顯示武器2
+        }
+        else
+        {
+            weapon1.SetActive(true);   // 顯示武器1
+            weapon2.SetActive(false);  // 隱藏武器2
+        }
 
         // 設定走路動畫
         anim.SetBool("Walk", Mathf.Abs(moveInput) > 0.1f);

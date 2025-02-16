@@ -5,9 +5,8 @@ using System;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-    public float speed;
+
     public Rigidbody2D rigid2D;
-    public float speed_x_constraint;
 
     private bool isGrounded;
     private SpriteRenderer playerSr;
@@ -63,14 +62,14 @@ public class PlayerController : MonoBehaviour
         rigid2D.simulated = true;  // 重新啟動剛體碰撞
     }
 
-
-    void OnTriggerEnter2D(Collider2D collision)
+    public void SetRespawnPoint(Vector2 newRespawnPoint)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            TakeDamage(1);
-        }
+        respawnPoint = newRespawnPoint;
+        Debug.Log("Respawn point updated to: " + respawnPoint);
     }
+
+
+    
 
 
 
