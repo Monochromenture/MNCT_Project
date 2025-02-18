@@ -2,14 +2,16 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    public float leftX;  // 左邊界 X 座標
-    public float rightX; // 右邊界 X 座標
+    public float moveRange = 3f;  // 移動範圍（從中心點往兩側移動的距離）
     public float speed = 2f;
-    private bool movingRight = true;
+
+    private float startPos;
     private SpriteRenderer enemySprite;
+    private bool movingRight = true;
 
     private void Start()
     {
+        startPos = transform.position.x;  // 記錄起始位置
         enemySprite = GetComponent<SpriteRenderer>();
     }
 
@@ -20,29 +22,13 @@ public class EnemyMovement : MonoBehaviour
 
     private void Move()
     {
-        if (movingRight)
-        {
-            transform.position += Vector3.right * speed * Time.deltaTime;
-            if (transform.position.x >= rightX)
-            {
-                movingRight = false;
-                Flip();
-            }
-        }
-        else
-        {
-            transform.position += Vector3.left * speed * Time.deltaTime;
-            if (transform.position.x <= leftX)
-            {
-                movingRight = true;
-                Flip();
-            }
-        }
-    }
+        float newX = startPos + Mathf.PingPong(Time.time * speed, moveRange * 2) - moveRange;
+        movingRight = newX > transform.position.x;  // 判斷當前移動方向
 
-    private void Flip()
-    {
-        enemySprite.flipX = !enemySprite.flipX;  // 翻轉敵人
+        transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+
+        // 翻轉角色朝向
+        enemySprite.flipX = !movingRight;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

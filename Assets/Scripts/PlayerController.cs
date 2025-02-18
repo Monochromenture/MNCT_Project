@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using UnityEngine;
 using System;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    public PlayerData playerData;
 
     public Rigidbody2D rigid2D;
 
@@ -13,17 +15,24 @@ public class PlayerController : MonoBehaviour
 
     public float health, maxHealth;
     public Vector2 respawnPoint;  // 新增復活點變數
+    public Vector2 SceneLoadrespawnPoint;
 
     public static event Action OnPlayerDamage;
     public static event Action OnPlayerDeath;
 
     private void Start()
     {
+        DontDestroyOnLoad(this.gameObject);
         rigid2D = GetComponent<Rigidbody2D>();
         playerSr = GetComponent<SpriteRenderer>();  // 取得 SpriteRenderer
         health = maxHealth;
         respawnPoint = transform.position;  // 設定初始復活點
+       //SceneLoadrespawnPoint = new Vector2(0, 0);
+
     }
+
+
+
 
     public void TakeDamage(float amount)
     {
@@ -68,10 +77,27 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Respawn point updated to: " + respawnPoint);
     }
 
+     private void OnEnable()
+    {
+         SceneManager.sceneLoaded += OnSceneLoaded; // 註冊場景加載事件
+    }
 
-    
+    private void OnDisable()
+    {
+         SceneManager.sceneLoaded -= OnSceneLoaded; // 取消註冊
+    }
+
+     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+         // 場景加載後設定玩家重生點
+        transform.position = SceneLoadrespawnPoint;
+    }
 
 
-
+     public void LoadtoNewScene(string targetScene)
+     {
+         SceneManager.LoadScene(targetScene); // 切換場景
+         transform.position = SceneLoadrespawnPoint; // 切換後設置重生點
+     }
 
 }
