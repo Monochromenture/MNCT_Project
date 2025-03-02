@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -27,7 +28,7 @@ public class PlayerController : MonoBehaviour
         playerSr = GetComponent<SpriteRenderer>();  // 取得 SpriteRenderer
         health = maxHealth;
         respawnPoint = transform.position;  // 設定初始復活點
-       //SceneLoadrespawnPoint = new Vector2(0, 0);
+        //SceneLoadrespawnPoint = new Vector2(0, 0);
 
     }
 
@@ -77,27 +78,64 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Respawn point updated to: " + respawnPoint);
     }
 
-     private void OnEnable()
-    {
-         SceneManager.sceneLoaded += OnSceneLoaded; // 註冊場景加載事件
-    }
 
-    private void OnDisable()
-    {
-         SceneManager.sceneLoaded -= OnSceneLoaded; // 取消註冊
-    }
+    public List<ColorType> unlockedColors = new List<ColorType>();
 
-     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    public void UnlockColor(ColorType color)
     {
-         // 場景加載後設定玩家重生點
-        transform.position = SceneLoadrespawnPoint;
+        if (!unlockedColors.Contains(color))
+        {
+            unlockedColors.Add(color);
+        }
     }
 
 
-     public void LoadtoNewScene(string targetScene)
-     {
-         SceneManager.LoadScene(targetScene); // 切換場景
-         transform.position = SceneLoadrespawnPoint; // 切換後設置重生點
-     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+         private void OnEnable()
+        {
+             SceneManager.sceneLoaded += OnSceneLoaded; // 註冊場景加載事件
+        }
+
+        private void OnDisable()
+        {
+             SceneManager.sceneLoaded -= OnSceneLoaded; // 取消註冊
+        }
+
+         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+             // 場景加載後設定玩家重生點
+            transform.position = SceneLoadrespawnPoint;
+        }
+
+
+         public void LoadtoNewScene(string targetScene)
+         {
+             SceneManager.LoadScene(targetScene); // 切換場景
+             transform.position = SceneLoadrespawnPoint; // 切換後設置重生點
+         }
+     */
+
+
+
+
+
+
 
 }

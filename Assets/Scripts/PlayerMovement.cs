@@ -11,21 +11,23 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
-    public bool enableDoubleJump = true;
+
+    [Header("Jump Settings")]
+    public bool enableDoubleJump = true;  // 是否開啟二段跳
+    public bool enableAirJump = true;     // 是否開啟補救跳躍（離開地面後仍能跳一次）
 
     private Rigidbody2D rb;
-    private bool isGrounded;
     private bool canDoubleJump;
-    private bool jumpPressed = false;  // 記錄是否按下跳躍鍵
+    private bool jumpPressed = false;
+    private bool hasAirJumped = false; // 追蹤玩家是否已經執行過補救跳躍
 
     [Header("Ground Check Settings")]
-    public Transform groundCheck;  // 檢查地面的位置
-    public float groundCheckRadius = 0.2f;  // 檢查半徑
-    public LayerMask groundLayer;  // 地面層級
+    public Transform groundCheck;
+    public float groundCheckRadius = 0.2f;
+    public LayerMask groundLayer;
 
-    // 武器
-    public GameObject weapon1;  // 武器1（向右）
-    public GameObject weapon2;  // 武器2（向左）
+    public GameObject weapon1;
+    public GameObject weapon2;
 
     void Start()
     {
@@ -35,23 +37,23 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         MovePlayer();
-        ClampPlayerPosition(); // 限制角色位置
+        ClampPlayerPosition();
 
-        // 處理跳躍輸入
+        // 監聽跳躍按鍵
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            jumpPressed = true;  // 記錄按下跳躍鍵
+            jumpPressed = true;
         }
     }
 
     private void FixedUpdate()
     {
-        HandleJump();  // 在 FixedUpdate 中處理跳躍
+        HandleJump();
     }
 
     private void MovePlayer()
     {
-        float moveInput = Input.GetAxis("Horizontal"); // A/D or Left/Right keys
+        float moveInput = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
         // 角色翻轉
@@ -61,13 +63,13 @@ public class PlayerMovement : MonoBehaviour
         // 切換武器
         if (PlayerSr.flipX)
         {
-            weapon1.SetActive(false);  // 隱藏武器1
-            weapon2.SetActive(true);   // 顯示武器2
+            weapon1.SetActive(false);
+            weapon2.SetActive(true);
         }
         else
         {
-            weapon1.SetActive(true);   // 顯示武器1
-            weapon2.SetActive(false);  // 隱藏武器2
+            weapon1.SetActive(true);
+            weapon2.SetActive(false);
         }
 
         // 設定走路動畫
@@ -76,55 +78,45 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJump()
     {
+        bool isGrounded = IsGrounded();
+
+        if (isGrounded)
+        {
+            canDoubleJump = true; // 角色落地時重置雙跳
+            hasAirJumped = false; // 角色落地時重置補救跳躍
+        }
+
         if (jumpPressed)
         {
-            if (IsGrounded())
+            if (isGrounded || (enableAirJump && !hasAirJumped))
             {
                 Jump();
-                canDoubleJump = true; // 重置雙跳
+                hasAirJumped = true; // 標記補救跳躍已執行
+
+                if (!isGrounded) // 如果已經在空中跳躍，則啟用雙跳
+                {
+                    canDoubleJump = false;
+                }
             }
             else if (enableDoubleJump && canDoubleJump)
             {
                 Jump();
-                canDoubleJump = false; // 禁止再次雙跳
+                canDoubleJump = false; // 禁用雙跳
             }
 
-            jumpPressed = false; // 重置跳躍輸入，避免重複觸發
+            jumpPressed = false;
         }
     }
 
     private void Jump()
     {
-        rb.velocity = new Vector2(rb.velocity.x, 0f);  // 重置垂直速度，避免連續跳躍影響
-        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);  // 物理跳躍
+        rb.velocity = new Vector2(rb.velocity.x, 0f);  // 重置垂直速度，避免影響跳躍高度
+        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
     }
 
     private bool IsGrounded()
     {
-        // 使用 OverlapCircle 檢查角色是否站在地面上
-        bool grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
-        // 顯示調試訊息
-        //Debug.Log("IsGrounded: " + grounded);
-
-        return grounded;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        // 檢查角色是否落地
-        if (collision.collider.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.collider.CompareTag("Ground"))
-        {
-            isGrounded = false;
-        }
+        return Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
     private void ClampPlayerPosition()
