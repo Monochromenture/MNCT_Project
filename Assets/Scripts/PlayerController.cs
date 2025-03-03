@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(float amount)
     {
         health -= amount;
+        Debug.Log("玩家扣血：" + amount + ", 剩餘血量：" + health);
         OnPlayerDamage?.Invoke();
 
         if (health <= 0)
@@ -45,9 +46,11 @@ public class PlayerController : MonoBehaviour
             health = 0;
             Debug.Log("You're dead");
             OnPlayerDeath?.Invoke();
-            StartCoroutine(RespawnPlayer());  // 啟動閃爍 & 重生協程
+            StartCoroutine(RespawnPlayer());
         }
     }
+
+
 
     public static event Action OnPlayerRespawn;  // 新增復活事件
 

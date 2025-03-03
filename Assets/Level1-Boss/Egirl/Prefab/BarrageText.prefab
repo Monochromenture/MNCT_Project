@@ -168,7 +168,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 0.09456444, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -235,17 +235,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   randomTexts:
-  - Magenta
-  - Yellow
-  - Blue
-  - Attack
-  - Danger
-  - UwU
+  - "\u9019\u4E5F\u80FD\u6B7B\uFF1F"
+  - "AI\u90FD\u770B\u4E0D\u4E0B\u53BB\u4E86"
+  - "\u4E00\u9846\u5B50\u5F48\u6253\u534A\u5C0F\u6642"
+  - "\u9019\u908A\u61C9\u8A72\u76F4\u63A5\u7E5E\u5F8C"
+  - "\u6309Alt+F4\u53EF\u4EE5\u56DE\u8840"
+  - "\u6211\u670B\u53CB\u8AAA\u9019\u88E1\u6709\u96B1\u85CF\u6B66\u5668"
   speed: 4
   lifeTime: 8
   colorType: 0
   playerLayer:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 1024
   minY: -4
   maxY: 4
+  gap: 2

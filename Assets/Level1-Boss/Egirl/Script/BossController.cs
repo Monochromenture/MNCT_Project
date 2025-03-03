@@ -24,8 +24,8 @@ public class BossController : MonoBehaviour
     public float attackCooldown = 1.5f;
     private bool isAttacking = false;
     private int attackCount = 0;
-    public float health = 100f;
-    public float maxHealth = 100f;
+    public float health = 10f;
+    public float maxHealth = 10f;
     private bool secondPhase = false;
 
     public GameObject uwuProjectile;
@@ -108,16 +108,68 @@ public class BossController : MonoBehaviour
         }
     }
 
+
+    public float attackOffset = 1f;    // 水平偏移距離
+    public float verticalOffset = 0.5f;
+    public float attackRadius = 0.5f;    // 攻擊範圍半徑
+    public LayerMask playerLayer;        // 玩家所在的 Layer
+
+    public void DoAttack()
+    {
+        Debug.Log("DoAttack() 被呼叫");
+        // 根據 Boss 的 localScale.x 判斷攻擊方向：正值向右，負值向左
+        float facingDirection = Mathf.Sign(transform.localScale.x);
+        // 加上水平偏移與向下偏移
+        Vector2 attackCenter = (Vector2)transform.position
+                               + Vector2.right * attackOffset * facingDirection
+                               + Vector2.down * verticalOffset;
+        Debug.Log("攻擊中心: " + attackCenter + " 半徑: " + attackRadius);
+
+        Collider2D hit = Physics2D.OverlapCircle(attackCenter, attackRadius, playerLayer);
+        if (hit != null)
+        {
+            // 使用 GetComponent 直接抓取玩家
+            PlayerController player = hit.GetComponent<PlayerController>();
+            if (player != null)
+            {
+                player.TakeDamage(1);
+                Debug.Log("玩家受到攻擊，扣除1點血量");
+            }
+            else
+            {
+                Debug.Log("OverlapCircle 檢測到物件，但找不到 PlayerController");
+            }
+        }
+        else
+        {
+            Debug.Log("OverlapCircle 沒有檢測到任何物件");
+        }
+
+        Debug.Log("verticalOffset: " + verticalOffset);
+
+
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        // 根據 Boss 的 facing 判斷：transform.right * attackOffset 代表水平偏移，再加上垂直偏移
+        Vector2 attackCenter = (Vector2)transform.position + (Vector2)(transform.right * attackOffset) + Vector2.down * verticalOffset;
+        Gizmos.DrawWireSphere(attackCenter, attackRadius);
+    }
+
+
     IEnumerator KickAttack()
     {
         isAttacking = true;
         animator.SetTrigger("KickTrigger");
-        // 假設踢擊動畫長度為 0.8 秒
-        float kickAnimDuration = 0.8f;
+ 
+        float kickAnimDuration = 0.75f;
         yield return new WaitForSeconds(kickAnimDuration);
-        // 動畫播放完後再累加攻擊次數
+
+        // 動畫播放完後累加攻擊次數
         attackCount++;
-        // 等待剩餘的冷卻時間
+
         yield return new WaitForSeconds(attackCooldown - kickAnimDuration);
         isAttacking = false;
         ResetAttackState();
@@ -128,11 +180,13 @@ public class BossController : MonoBehaviour
     {
         isAttacking = true;
         animator.SetTrigger("PunchTrigger");
-        // 假設拳擊動畫長度為 0.8 秒
-        float punchAnimDuration = 0.8f;
+
+        float punchAnimDuration = 0.75f;
         yield return new WaitForSeconds(punchAnimDuration);
         // 動畫播放完後累加攻擊次數
+ 
         attackCount++;
+
         yield return new WaitForSeconds(attackCooldown - punchAnimDuration);
         isAttacking = false;
         ResetAttackState();
@@ -156,7 +210,7 @@ public class BossController : MonoBehaviour
         }
         else
         {
-            if (attackCount >= Random.Range(10, 16) && Time.time > lastBarrageEndTime + barrageCooldown)
+            if (attackCount >= Random.Range(10, 16) )
             {
                 attackCount = 0;
                 currentState = BossState.Barrage;
@@ -167,6 +221,7 @@ public class BossController : MonoBehaviour
         currentState = BossState.Follow;
     }
 
+    //&& Time.time > lastBarrageEndTime + barrageCooldown
 
     public GameObject barragePrefab;
     public Transform barrageSpawnPoint;
@@ -268,4 +323,8 @@ public class BossController : MonoBehaviour
         else if (moveDirection < 0)
             transform.localScale = new Vector3(1, 1, 1);
     }
+
+
+
+
 }
