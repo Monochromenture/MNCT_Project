@@ -5,17 +5,15 @@ public class Weapon2 : MonoBehaviour
 {
     public float attackCooldown = 0.5f; // 攻擊冷卻時間
     public float attackDuration = 0.2f; // 揮動時間
-    public float attackAngle = 90f; // 揮動角度
+    public float attackAngle = 90f;     // 揮動角度
     private bool isAttacking = false;
     private float lastAttackTime;
 
     private Quaternion initialRotation;
-    private SpriteRenderer playerSpriteRenderer; // 用來檢查玩家的翻轉
 
     void Start()
     {
         initialRotation = transform.localRotation;
-
     }
 
     void Update()
@@ -25,7 +23,6 @@ public class Weapon2 : MonoBehaviour
             lastAttackTime = Time.time;
             StartCoroutine(SwingWeapon());
         }
-
     }
 
     private IEnumerator SwingWeapon()
@@ -33,10 +30,9 @@ public class Weapon2 : MonoBehaviour
         isAttacking = true;
         float elapsedTime = 0f;
 
-        // 設定揮動範圍 (向左)
-        // 這裡我們將揮動範圍設置為從上往下，並且將旋轉角度調整為向左（逆時針）
-        Quaternion startRotation = Quaternion.Euler(0, 0, -attackAngle / 2); // 例如 -45°
-        Quaternion endRotation = Quaternion.Euler(0, 0, attackAngle / 2);  // 例如 45°
+        // 設定揮動範圍 (從上往下)
+        Quaternion startRotation = Quaternion.Euler(0, 0, attackAngle / 2); // 例如 45°
+        Quaternion endRotation = Quaternion.Euler(0, 0, -attackAngle / 2);  // 例如 -45°
 
         while (elapsedTime < attackDuration)
         {
@@ -50,7 +46,6 @@ public class Weapon2 : MonoBehaviour
         isAttacking = false;
     }
 
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (isAttacking && collision.CompareTag("Enemy"))
@@ -60,6 +55,19 @@ public class Weapon2 : MonoBehaviour
             {
                 enemy.TakeDamage(1); // 給敵人扣 1 點血
             }
+        }
+        else if (isAttacking && collision.CompareTag("Boss"))
+        {
+            BossController boss = collision.GetComponent<BossController>();
+            if (boss != null)
+            {
+                boss.TakeDamage(1); // 給 Boss 扣 1 點血
+            }
+        }
+        else if (isAttacking && collision.CompareTag("Player"))
+        {
+            // 如果碰到玩家，不做任何操作，避免自傷
+            return;
         }
     }
 }

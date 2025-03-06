@@ -4446,7 +4446,7 @@ GameObject:
   - component: {fileID: 1666259014}
   m_Layer: 7
   m_Name: BossEgirl
-  m_TagString: Enemy
+  m_TagString: Boss
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4640,14 +4640,17 @@ MonoBehaviour:
   - {fileID: 915385035753669305, guid: 3162087c0ac6b1b4a8a6900d939e3eec, type: 3}
   airDropSpawnPoint: {fileID: 0}
   portal: {fileID: 0}
-  attackOffset: -0.5
-  verticalOffset: 1
-  attackRadius: 1.5
+  attackOffset: -0.43
+  verticalOffset: 0.69
+  attackRadius: 1.44
   playerLayer:
     serializedVersion: 2
     m_Bits: 1024
   barragePrefab: {fileID: 7308420005211815976, guid: ef8d936e7ae66c34393a08400a13d81d, type: 3}
   barrageSpawnPoint: {fileID: 6397913803004892244, guid: ef8d936e7ae66c34393a08400a13d81d, type: 3}
+  gloveProjectilePrefab: {fileID: 0}
+  gloveThrowAnimDuration: 0.8
+  stunnedDuration: 3
 --- !u!1 &1683656142
 GameObject:
   m_ObjectHideFlags: 0

@@ -65,7 +65,7 @@ public class BossController : MonoBehaviour
                         StartCoroutine(BarrageAttack());
                     break;
                 case BossState.GloveThrow:
-                    GloveThrowAttack();
+                    StartCoroutine(GloveThrowAttack());
                     break;
                 case BossState.Stunned:
                     StartCoroutine(StunnedState());
@@ -251,21 +251,80 @@ public class BossController : MonoBehaviour
     }
 
 
+    public GameObject gloveProjectilePrefab;  // 手套預製物件
+    public float gloveThrowAnimDuration = 0.8f;   // 手套動畫長度
+    public float stunnedDuration = 3f;            // Stunned 狀態持續時間
 
 
 
-    void GloveThrowAttack()
+    IEnumerator GloveThrowAttack()
     {
+        // 先讓 Boss 面向玩家
+        FacePlayer();
+
+        // 禁用玩家移動
+        if (player != null)
+        {
+            PlayerController pc = player.GetComponent<PlayerController>();
+            if (pc != null)
+            {
+                pc.DisableMovement();
+                Debug.Log("玩家移動已禁用");
+            }
+        }
+
+        // 播放 GloveThrow 動畫
         animator.SetTrigger("GloveThrowTrigger");
+
+        // 等待手套攻擊動畫播放完畢（假設 gloveThrowAnimDuration 為 0.8 秒）
+        yield return new WaitForSeconds(gloveThrowAnimDuration);
+
+        // 發射手套拋出物件（此物件在碰撞時僅觸發玩家閃爍，不扣血）
+        // 切換到 Stunned 狀態
         currentState = BossState.Stunned;
+
+        // 結束此協程，由 StunnedState 處理後續（恢復玩家移動、生成空投物資等）
     }
+
+    public void GloveHitPlayer()
+    {
+        Debug.Log("手套擊中玩家（閃爍效果）");
+
+        Collider2D hit = Physics2D.OverlapCircle(transform.position, attackRadius, playerLayer);
+        if (hit != null)
+        {
+            PlayerController player = hit.GetComponent<PlayerController>();
+            if (player != null)
+            {
+                player.TakeDamage(0); // 觸發閃爍效果
+                Debug.Log("玩家閃爍");
+            }
+        }
+    }
+
 
     IEnumerator StunnedState()
     {
         animator.SetTrigger("StunnedTrigger");
-        yield return new WaitForSeconds(3f);
-        currentState = BossState.UwU;
+        yield return new WaitForSeconds(stunnedDuration);
+
+        // 恢復玩家移動
+        if (player != null)
+        {
+            PlayerController pc = player.GetComponent<PlayerController>();
+            if (pc != null)
+            {
+                pc.EnableMovement();
+                Debug.Log("玩家移動已恢復");
+            }
+        }
+
+        // 開始掉落粉絲的空投物資（這裡僅示意，請根據需求實作）
+        SpawnAirdrops();
+
+        currentState = BossState.Follow;
     }
+
 
     void UwUAttack()
     {
@@ -293,9 +352,10 @@ public class BossController : MonoBehaviour
         if (health <= 0) return;
 
         health -= amount;
+        Debug.Log("Boss 受傷, 現在血量：" + health);
         OnBossDamage?.Invoke();
 
-        if (health <= maxHealth * 0.6f && !secondPhase)
+        if (health <= 6 && !secondPhase)
         {
             secondPhase = true;
             currentState = BossState.GloveThrow;
@@ -308,6 +368,34 @@ public class BossController : MonoBehaviour
             StartCoroutine(DefeatSequence());
         }
     }
+
+    void FacePlayer()
+    {
+        if (player != null)
+        {
+            Vector3 direction = player.position - transform.position;
+            if (direction.x > 0)
+                transform.localScale = new Vector3(-1, transform.localScale.y, transform.localScale.z);
+            else
+                transform.localScale = new Vector3(1, transform.localScale.y, transform.localScale.z);
+        }
+    }
+
+    void SpawnAirdrops()
+    {
+        if (airDropItems.Length == 0 || airDropSpawnPoint == null) return;
+
+        int dropCount = Random.Range(1, 4); // 掉落 1 到 3 個物資
+        for (int i = 0; i < dropCount; i++)
+        {
+            int randomIndex = Random.Range(0, airDropItems.Length);
+            Instantiate(airDropItems[randomIndex], airDropSpawnPoint.position, Quaternion.identity);
+            Debug.Log("空投物資生成");
+        }
+    }
+
+
+
 
     IEnumerator DefeatSequence()
     {
@@ -323,7 +411,6 @@ public class BossController : MonoBehaviour
         else if (moveDirection < 0)
             transform.localScale = new Vector3(1, 1, 1);
     }
-
 
 
 

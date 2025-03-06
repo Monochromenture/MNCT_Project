@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Checkpoint
   - Portal
+  - Boss
   layers:
   - Default
   - TransparentFX

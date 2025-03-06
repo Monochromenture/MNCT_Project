@@ -8,9 +8,7 @@ using System.Collections.Generic;
 public class PlayerController : MonoBehaviour
 {
     public PlayerData playerData;
-
     public Rigidbody2D rigid2D;
-
     private bool isGrounded;
     private SpriteRenderer playerSr;
 
@@ -21,6 +19,9 @@ public class PlayerController : MonoBehaviour
     public static event Action OnPlayerDamage;
     public static event Action OnPlayerDeath;
 
+    // 控制移動的旗標，預設可移動
+    private bool canMove = true;
+
     private void Start()
     {
         DontDestroyOnLoad(this.gameObject);
@@ -29,11 +30,7 @@ public class PlayerController : MonoBehaviour
         health = maxHealth;
         respawnPoint = transform.position;  // 設定初始復活點
         //SceneLoadrespawnPoint = new Vector2(0, 0);
-
     }
-
-
-
 
     public void TakeDamage(float amount)
     {
@@ -49,8 +46,6 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(RespawnPlayer());
         }
     }
-
-
 
     public static event Action OnPlayerRespawn;  // 新增復活事件
 
@@ -81,7 +76,6 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Respawn point updated to: " + respawnPoint);
     }
 
-
     public List<ColorType> unlockedColors = new List<ColorType>();
 
     public void UnlockColor(ColorType color)
@@ -92,23 +86,29 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // 新增 DisableMovement() 與 EnableMovement() 方法
+    public void DisableMovement()
+    {
+        canMove = false;
+        rigid2D.velocity = Vector2.zero; // 停止移動
+        Debug.Log("玩家移動已禁用");
+    }
 
+    public void EnableMovement()
+    {
+        canMove = true;
+        Debug.Log("玩家移動已恢復");
+    }
 
+    // 假設玩家移動邏輯在 Update() 中（這裡僅作示意）
+    private void Update()
+    {
+        if (!canMove)
+            return;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        // 你的玩家移動邏輯，例如使用 Input.GetAxis() 來移動
+        // 這部分根據實際需求來實作
+    }
 
     /*
          private void OnEnable()
@@ -134,11 +134,4 @@ public class PlayerController : MonoBehaviour
              transform.position = SceneLoadrespawnPoint; // 切換後設置重生點
          }
      */
-
-
-
-
-
-
-
 }
