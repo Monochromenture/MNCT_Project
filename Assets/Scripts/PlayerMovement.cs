@@ -1,4 +1,8 @@
+using Unity.VisualScripting;
+using System.Collections;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -36,6 +40,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+
+        if (!canMove)
+            return;
+
         MovePlayer();
         ClampPlayerPosition();
 
@@ -44,6 +52,9 @@ public class PlayerMovement : MonoBehaviour
         {
             jumpPressed = true;
         }
+
+
+
     }
 
     private void FixedUpdate()
@@ -126,4 +137,42 @@ public class PlayerMovement : MonoBehaviour
         position.y = Mathf.Clamp(position.y, minBounds.y, maxBounds.y);
         transform.position = position;
     }
+
+    // 控制移動的旗標，預設可移動
+    private bool canMove = true;
+    public Rigidbody2D rigid2D;
+
+    // 新增 DisableMovement() 與 EnableMovement() 方法
+
+    public void DisableMovement()
+    {
+        canMove = false;
+        rigid2D.velocity = Vector2.zero; // 停止移動
+        anim.SetBool("Walk", false); // 確保關閉走路動畫
+        anim.SetBool("Idle", true);  // 進入 Idle 動畫
+        Debug.Log("玩家移動已禁用");
+    }
+
+
+    public void EnableMovement()
+    {
+        canMove = true;
+        Debug.Log("玩家移動已恢復");
+    }
+
+    // 假設玩家移動邏輯在 Update() 中（這裡僅作示意）
+
+    public void Stun(float duration)
+    {
+        StartCoroutine(StunCoroutine(duration));
+    }
+
+    IEnumerator StunCoroutine(float duration)
+    {
+        DisableMovement(); // 停止移動
+        yield return new WaitForSeconds(duration);
+        EnableMovement();
+    }
+
+
 }

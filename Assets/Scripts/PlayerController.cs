@@ -19,8 +19,6 @@ public class PlayerController : MonoBehaviour
     public static event Action OnPlayerDamage;
     public static event Action OnPlayerDeath;
 
-    // 控制移動的旗標，預設可移動
-    private bool canMove = true;
 
     private void Start()
     {
@@ -86,29 +84,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // 新增 DisableMovement() 與 EnableMovement() 方法
-    public void DisableMovement()
-    {
-        canMove = false;
-        rigid2D.velocity = Vector2.zero; // 停止移動
-        Debug.Log("玩家移動已禁用");
-    }
 
-    public void EnableMovement()
-    {
-        canMove = true;
-        Debug.Log("玩家移動已恢復");
-    }
 
-    // 假設玩家移動邏輯在 Update() 中（這裡僅作示意）
-    private void Update()
-    {
-        if (!canMove)
-            return;
-
-        // 你的玩家移動邏輯，例如使用 Input.GetAxis() 來移動
-        // 這部分根據實際需求來實作
-    }
 
     /*
          private void OnEnable()

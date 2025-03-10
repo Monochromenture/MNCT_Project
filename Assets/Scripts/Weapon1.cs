@@ -10,10 +10,13 @@ public class Weapon1 : MonoBehaviour
     private float lastAttackTime;
 
     private Quaternion initialRotation;
+    private Collider2D weaponCollider;
+    private float lastDamageTime; // 記錄上次傷害時間
 
     void Start()
     {
         initialRotation = transform.localRotation;
+        weaponCollider = GetComponent<Collider2D>(); // 取得武器 Collider
     }
 
     void Update()
@@ -28,11 +31,11 @@ public class Weapon1 : MonoBehaviour
     private IEnumerator SwingWeapon()
     {
         isAttacking = true;
+        weaponCollider.enabled = true; // 啟用碰撞
         float elapsedTime = 0f;
 
-        // 設定揮動範圍 (從上往下)
-        Quaternion startRotation = Quaternion.Euler(0, 0, attackAngle / 2); // 例如 45°
-        Quaternion endRotation = Quaternion.Euler(0, 0, -attackAngle / 2);  // 例如 -45°
+        Quaternion startRotation = Quaternion.Euler(0, 0, attackAngle / 2);
+        Quaternion endRotation = Quaternion.Euler(0, 0, -attackAngle / 2);
 
         while (elapsedTime < attackDuration)
         {
@@ -42,32 +45,39 @@ public class Weapon1 : MonoBehaviour
             yield return null;
         }
 
-        transform.localRotation = initialRotation; // 重置位置
+        transform.localRotation = initialRotation;
         isAttacking = false;
+
+        weaponCollider.enabled = false; // 關閉碰撞
+        yield return new WaitForSeconds(0.1f); // 延遲0.1秒再開啟碰撞
+        weaponCollider.enabled = true;
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (isAttacking && collision.CompareTag("Enemy") && Time.time - lastDamageTime > attackCooldown)
+        {
+            BossController boss = collision.GetComponent<BossController>();
+            if (boss != null)
+            {
+                boss.TakeDamage(1); // 扣血
+                lastDamageTime = Time.time; // 更新上次扣血時間
+                Debug.Log($"Stay Hit: {collision.name}");
+            }
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (isAttacking && collision.CompareTag("Enemy"))
         {
-            Enemy enemy = collision.GetComponent<Enemy>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(1); // 給敵人扣 1 點血
-            }
-        }
-        else if (isAttacking && collision.CompareTag("Boss"))
-        {
             BossController boss = collision.GetComponent<BossController>();
             if (boss != null)
             {
-                boss.TakeDamage(1); // 給 Boss 扣 1 點血
+                boss.TakeDamage(1);
+                lastDamageTime = Time.time; // 第一次攻擊也要更新扣血時間
+                Debug.Log($"Hit: {collision.name}");
             }
-        }
-        else if (isAttacking && collision.CompareTag("Player"))
-        {
-            // 如果碰到玩家，不做任何操作，避免自傷
-            return;
         }
     }
 }
