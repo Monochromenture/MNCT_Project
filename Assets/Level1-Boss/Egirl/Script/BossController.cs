@@ -1,4 +1,5 @@
-using System.Collections;
+ï»¿using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -35,7 +36,7 @@ public class BossController : MonoBehaviour
     public GameObject portal;
 
     private float lastBarrageEndTime = 0f;
-    private bool isBarrageAttacking = false;  // ·s¼WºX¼Ğ
+    private bool isBarrageAttacking = false;  // æ–°å¢æ——æ¨™
 
     void Start()
     {
@@ -54,7 +55,7 @@ public class BossController : MonoBehaviour
         while (health > 0)
         {
             animator.SetFloat("Speed", currentState == BossState.Follow ? followSpeed : 0f);
-            Debug.Log($"AIUpdate: CurrentState = {currentState}");
+           // Debug.Log($"AIUpdate: CurrentState = {currentState}");
 
 
             switch (currentState)
@@ -105,13 +106,13 @@ public class BossController : MonoBehaviour
 
         if (secondPhase)
         {
-            // ·í¶i¤J²Ä¤G¶¥¬q®É¡A¹w³]¶i¤J Idle ª¬ºA
+            // é€²å…¥ç¬¬äºŒéšæ®µæ™‚ï¼Œé è¨­åˆ‡æ›è‡³ Idle ç‹€æ…‹
             currentState = BossState.Idle;
-            Debug.Log("²Ä¤G¶¥¬q¡G¤Á´«¨ì Idle ª¬ºA");
+            Debug.Log("ç¬¬äºŒéšæ®µï¼šåˆ‡æ›åˆ° Idle ç‹€æ…‹ã€‚");
             return;
         }
 
-        // ²Ä¤@¶¥¬q¦æ¬°
+        // ç¬¬ä¸€éšæ®µè¡Œç‚º
         if (!firstBarrageTriggered)
         {
             if (attackCount >= firstBarrageThreshold)
@@ -119,7 +120,7 @@ public class BossController : MonoBehaviour
                 firstBarrageTriggered = true;
                 attackCount = 0;
                 currentState = BossState.Barrage;
-                Debug.Log("Trigger first barrage attack");
+                Debug.Log("è§¸ç™¼ç¬¬ä¸€æ¬¡å½ˆå¹•æ”»æ“Š");
                 return;
             }
         }
@@ -129,12 +130,24 @@ public class BossController : MonoBehaviour
             {
                 attackCount = 0;
                 currentState = BossState.Barrage;
-                Debug.Log("Trigger subsequent barrage attack");
+                Debug.Log("è§¸ç™¼å¾ŒçºŒå½ˆå¹•æ”»æ“Š");
                 return;
             }
         }
-        currentState = BossState.Follow;
+
+        // ç¢ºä¿åœ¨æ‰‹å¥—æ”»æ“ŠæœŸé–“ä¸è§¸ç™¼å½ˆå¹•
+        if (!isGloveThrowing)
+        {
+            currentState = BossState.Follow;
+        }
+        else
+        {
+            Debug.Log("å› ç‚ºæ‰‹å¥—æ”»æ“Šï¼Œå½ˆå¹•è¢«é˜»æ­¢ã€‚");
+        }
     }
+
+
+
 
 
 
@@ -142,13 +155,12 @@ public class BossController : MonoBehaviour
     {
         if (secondPhase)
         {
-            currentState = BossState.Pickup;
+            currentState = BossState.Pickup; // é€²å…¥æ’¿å–ç‰©è³‡ç‹€æ…‹
             yield break;
         }
 
         animator.SetTrigger("IdleTrigger");
         yield return new WaitForSeconds(5f);
-
     }
 
 
@@ -178,40 +190,40 @@ public class BossController : MonoBehaviour
     }
 
  
-    public float attackOffset = 1f;    // ¤ô¥­°¾²¾¶ZÂ÷
+    public float attackOffset = 1f;    // æ°´å¹³åç§»è·é›¢
     public float verticalOffset = 0.5f;
-    public float attackRadius = 0.5f;    // §ğÀ»½d³ò¥b®|
-    public LayerMask playerLayer;        // ª±®a©Ò¦bªº Layer
+    public float attackRadius = 0.5f;    // æ”»æ“Šç¯„åœåŠå¾‘
+    public LayerMask playerLayer;        // ç©å®¶æ‰€åœ¨çš„ Layer
 
     public void DoAttack()
     {
-        Debug.Log("DoAttack() ³Q©I¥s");
-        // ®Ú¾Ú Boss ªº localScale.x §PÂ_§ğÀ»¤è¦V¡G¥¿­È¦V¥k¡A­t­È¦V¥ª
+        Debug.Log("DoAttack() è¢«å‘¼å«");
+        // æ ¹æ“š Boss çš„ localScale.x åˆ¤æ–·æ”»æ“Šæ–¹å‘ï¼šæ­£å€¼å‘å³ï¼Œè² å€¼å‘å·¦
         float facingDirection = Mathf.Sign(transform.localScale.x);
-        // ¥[¤W¤ô¥­°¾²¾»P¦V¤U°¾²¾
+        // åŠ ä¸Šæ°´å¹³åç§»èˆ‡å‘ä¸‹åç§»
         Vector2 attackCenter = (Vector2)transform.position
                                + Vector2.right * attackOffset * facingDirection
                                + Vector2.down * verticalOffset;
-        Debug.Log("§ğÀ»¤¤¤ß: " + attackCenter + " ¥b®|: " + attackRadius);
+        Debug.Log("æ”»æ“Šä¸­å¿ƒ: " + attackCenter + " åŠå¾‘: " + attackRadius);
 
         Collider2D hit = Physics2D.OverlapCircle(attackCenter, attackRadius, playerLayer);
         if (hit != null)
         {
-            // ¨Ï¥Î GetComponent ª½±µ§ì¨úª±®a
+            // ä½¿ç”¨ GetComponent ç›´æ¥æŠ“å–ç©å®¶
             PlayerController player = hit.GetComponent<PlayerController>();
             if (player != null)
             {
                 player.TakeDamage(1);
-                Debug.Log("ª±®a¨ü¨ì§ğÀ»¡A¦©°£1ÂI¦å¶q");
+                Debug.Log("ç©å®¶å—åˆ°æ”»æ“Šï¼Œæ‰£é™¤1é»è¡€é‡");
             }
             else
             {
-                Debug.Log("OverlapCircle ÀË´ú¨ìª«¥ó¡A¦ı§ä¤£¨ì PlayerController");
+                Debug.Log("OverlapCircle æª¢æ¸¬åˆ°ç‰©ä»¶ï¼Œä½†æ‰¾ä¸åˆ° PlayerController");
             }
         }
         else
         {
-            Debug.Log("OverlapCircle ¨S¦³ÀË´ú¨ì¥ô¦óª«¥ó");
+            Debug.Log("OverlapCircle æ²’æœ‰æª¢æ¸¬åˆ°ä»»ä½•ç‰©ä»¶");
         }
 
         Debug.Log("verticalOffset: " + verticalOffset);
@@ -222,7 +234,7 @@ public class BossController : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        // ®Ú¾Ú Boss ªº facing §PÂ_¡Gtransform.right * attackOffset ¥Nªí¤ô¥­°¾²¾¡A¦A¥[¤W««ª½°¾²¾
+        // æ ¹æ“š Boss çš„ facing åˆ¤æ–·ï¼štransform.right * attackOffset ä»£è¡¨æ°´å¹³åç§»ï¼Œå†åŠ ä¸Šå‚ç›´åç§»
         Vector2 attackCenter = (Vector2)transform.position + (Vector2)(transform.right * attackOffset) + Vector2.down * verticalOffset;
         Gizmos.DrawWireSphere(attackCenter, attackRadius);
     }
@@ -236,7 +248,7 @@ public class BossController : MonoBehaviour
         float kickAnimDuration = 0.75f;
         yield return new WaitForSeconds(kickAnimDuration);
 
-        // °Êµe¼½©ñ§¹«á²Ö¥[§ğÀ»¦¸¼Æ
+        // å‹•ç•«æ’­æ”¾å®Œå¾Œç´¯åŠ æ”»æ“Šæ¬¡æ•¸
         attackCount++;
         Debug.Log("KickAttack");
 
@@ -253,7 +265,7 @@ public class BossController : MonoBehaviour
 
         float punchAnimDuration = 0.75f;
         yield return new WaitForSeconds(punchAnimDuration);
-        // °Êµe¼½©ñ§¹«á²Ö¥[§ğÀ»¦¸¼Æ
+        // å‹•ç•«æ’­æ”¾å®Œå¾Œç´¯åŠ æ”»æ“Šæ¬¡æ•¸
 
         attackCount++;
         Debug.Log("PunchAttack");
@@ -267,126 +279,114 @@ public class BossController : MonoBehaviour
 
     public GameObject barragePrefab;
     public Transform barrageSpawnPoint;
+    private bool isGloveThrowing = false;  // æ˜¯å¦æ­£åœ¨é€²è¡Œæ‰‹å¥—æ”»æ“Š
+
 
     IEnumerator BarrageAttack()
     {
-       FacePlayer();
+        // å¦‚æœ Boss å·²ç¶“åœ¨é€²è¡Œæ‰‹å¥—æ”»æ“Šï¼Œå‰‡è·³éå½ˆå¹•æ”»æ“Š
+        if (isGloveThrowing)
+        {
+            Debug.Log("å½ˆå¹•æ”»æ“Šè¢«è·³éï¼Œå› ç‚ºæ‰‹å¥—æ”»æ“Šæ­£åœ¨é€²è¡Œä¸­ã€‚");
+            yield break; // å¦‚æœæ‰‹å¥—æ”»æ“Šæ­£åœ¨é€²è¡Œï¼Œå‰‡è·³é BarrageAttack
+        }
+
+        FacePlayer(); // ç¢ºä¿ Boss æœå‘ç©å®¶
         isBarrageAttacking = true;
         animator.SetBool("IsBarrage", true);
 
-        int barrageCount = Random.Range(5, 9); // ¥Í¦¨ 5 ¨ì 8 ­Ó¼u¹õ
+        int barrageCount = Random.Range(5, 9); // ç”Ÿæˆ 5 åˆ° 8 å€‹å½ˆå¹•
         for (int i = 0; i < barrageCount; i++)
         {
             Vector3 spawnPos = barrageSpawnPoint.position + new Vector3(0, Random.Range(-3f, 3f), 0);
             Instantiate(barragePrefab, spawnPos, Quaternion.identity);
             yield return new WaitForSeconds(0.3f);
         }
- 
-        // µ¥«İ¼u¹õ®ø¥¢
+
+        // ç­‰å¾…å½ˆå¹•çµæŸ
         yield return new WaitUntil(() => BarrageTextController.activeBarrageCount <= 0);
 
         animator.SetBool("IsBarrage", false);
         lastBarrageEndTime = Time.time;
 
-        isBarrageAttacking = false;  // ¸Ñ°£Âê©w¡A¤¹³\¤U¦¸¶i¤J
-        currentState = BossState.Follow;  // ½T«O¤Á´«ª¬ºA¡AÁ×§K¥d¦í
-        Debug.Log("BarrageAttack µ²§ô¡A¤Á´«¦^ Follow");
+        isBarrageAttacking = false; // å…è¨±ä¸‹æ¬¡é€²è¡Œå½ˆå¹•æ”»æ“Š
+        currentState = BossState.Follow; // åˆ‡æ›å›è·Ÿéš¨ç‹€æ…‹
+        Debug.Log("BarrageAttack çµæŸï¼Œåˆ‡æ›å› Followã€‚");
     }
+
+
 
     private bool spawnAirdropsActive = false;
 
-    // ©w¸qªÅ§ëª«¸ê¥Í¦¨®Éªº X ½d³ò»P³»ºİ Y ®y¼Ğ
+    // å®šç¾©ç©ºæŠ•ç‰©è³‡ç”Ÿæˆæ™‚çš„ X ç¯„åœèˆ‡é ‚ç«¯ Y åº§æ¨™
     public float airdropSpawnMinX = -12f;
     public float airdropSpawnMaxX = 12f;
     public float airdropSpawnY = 10f;
 
 
-    IEnumerator SpawnAirdropsContinuously()
-    {
-        spawnAirdropsActive = true;
-        while (spawnAirdropsActive)
-        {
-            if (airDropItems.Length > 0)
-            {
-                int randomIndex = Random.Range(0, airDropItems.Length);
-                // ²£¥Í¤@­ÓÀH¾÷ªº X ®y¼Ğ¡AY ®y¼Ğ©T©w¬°³»ºİ¦ì¸m
-                float randomX = Random.Range(airdropSpawnMinX, airdropSpawnMaxX);
-                Vector3 spawnPos = new Vector3(randomX, airdropSpawnY, 0f);
-                Instantiate(airDropItems[randomIndex], spawnPos, Quaternion.identity);
-                Debug.Log("ªÅ§ëª«¸ê¥Í¦¨©ó " + spawnPos);
-            }
-            // ÀH¾÷µ¥«İ 2 ¨ì 5 ¬í«á¦A¥Í¦¨¤U¤@­Ó
-            yield return new WaitForSeconds(1f);
-        }
-    }
-
-
-
-
-
-    public GameObject gloveProjectilePrefab;  // ¤â®M¹w»sª«¥ó
-    public float gloveThrowAnimDuration = 0.8f;   // ¤â®M°Êµeªø«×
-    public float stunnedDuration = 3f;            // Stunned ª¬ºA«ùÄò®É¶¡
+    public GameObject gloveProjectilePrefab;  // æ‰‹å¥—é è£½ç‰©ä»¶
+    public float gloveThrowAnimDuration = 0.8f;   // æ‰‹å¥—å‹•ç•«é•·åº¦
+    public float stunnedDuration = 3f;            // Stunned ç‹€æ…‹æŒçºŒæ™‚é–“
 
 
 
     IEnumerator GloveThrowAttack()
     {
-        // ¥ıÅı Boss ­±¦Vª±®a
+
+        isGloveThrowing = true;
+
+        // å…ˆè®“ Boss é¢å‘ç©å®¶
         FacePlayer();
 
-        // ¸T¥Îª±®a²¾°Ê
+        // ç¦ç”¨ç©å®¶ç§»å‹•
         if (player != null)
         {
             PlayerMovement pc = player.GetComponent<PlayerMovement>();
             if (pc != null)
             {
                 pc.DisableMovement();
-                Debug.Log("ª±®a²¾°Ê¤w¸T¥Î");
+                Debug.Log("ç©å®¶ç§»å‹•å·²ç¦ç”¨");
             }
         }
 
+        // Stop the Boss from following the player while performing the attack
+        currentState = BossState.Idle;  // Change the state to Idle or another state where the Boss doesn't follow the player
 
-        float bossOffset = 8f;   // Boss ¶ZÂ÷µe­±¥kÃäªº°¾²¾¶q
-        float playerOffset = 3f; // ª±®a¶ZÂ÷µe­±¥ªÃäªº°¾²¾¶q
+        float bossOffset = 8f;   // Boss è·é›¢ç•«é¢å³é‚Šçš„åç§»é‡
+        float playerOffset = 3f; // ç©å®¶è·é›¢ç•«é¢å·¦é‚Šçš„åç§»é‡
 
-        // Boss ²¾°Ê¨ìµe­±¥k°¼ (§Q¥Î maxX)
+        // Boss ç§»å‹•åˆ°ç•«é¢å³å´ (åˆ©ç”¨ maxX)
         Vector3 newBossPos = new Vector3(maxX - bossOffset, transform.position.y, transform.position.z);
         transform.position = newBossPos;
-        Debug.Log("Boss ²¾°Ê¨ìµe­±¥k°¼¡G" + newBossPos);
+        Debug.Log("Boss ç§»å‹•åˆ°ç•«é¢å³å´ï¼š" + newBossPos);
 
-        // ª±®a²¾°Ê¨ìµe­±¥ª°¼ (§Q¥Î minX)
+        // ç©å®¶ç§»å‹•åˆ°ç•«é¢å·¦å´ (åˆ©ç”¨ minX)
         if (player != null)
         {
             Vector3 newPlayerPos = new Vector3(minX + playerOffset, player.position.y, player.position.z);
             player.position = newPlayerPos;
-            Debug.Log("Player ²¾°Ê¨ìµe­±¥ª°¼¡G" + newPlayerPos);
+            Debug.Log("Player ç§»å‹•åˆ°ç•«é¢å·¦å´ï¼š" + newPlayerPos);
         }
-
 
         isAttacking = true;
-        Debug.Log("¶}©l GloveThrowAttack");
+        Debug.Log("é–‹å§‹ GloveThrowAttack");
 
-        // ¼½©ñ GloveThrow °Êµe
+        // æ’­æ”¾ GloveThrow å‹•ç•«
         animator.SetTrigger("GloveThrowTrigger");
-        Debug.Log("¼½©ñGloveThrow°Êµe");
+        Debug.Log("æ’­æ”¾GloveThrowå‹•ç•«");
         yield return new WaitForSeconds(3f);
         isAttacking = false;
-        currentState = BossState.UwU;
 
-        // ¶}©l±¼¸¨ªÅ§ëª«¸ê
-        // ¦pªGªÅ§ë¥Í¦¨¨óµ{©|¥¼±Ò°Ê¡A´N±Ò°Ê¥¦
-        if (!spawnAirdropsActive)
-        {
-            StartCoroutine(SpawnAirdropsContinuously());
-        }
+        // æ¢å¾© Boss è¡Œç‚ºç‹€æ…‹
+        currentState = BossState.UwU;  // Or whatever state you want to transition to after the attack
 
     }
 
 
+
     public Transform uwuSpawnPoint;
     private GameObject activeUwUProjectile = null;
-    private bool hasSpawnedUwU = false;  // ·s¼WºX¼Ğ¡A½T«O¥u¥Í¦¨¤@¦¸
+    private bool hasSpawnedUwU = false;  // æ–°å¢æ——æ¨™ï¼Œç¢ºä¿åªç”Ÿæˆä¸€æ¬¡
 
     IEnumerator UwUAttack()
     {
@@ -396,14 +396,14 @@ public class BossController : MonoBehaviour
             if (pc != null)
             {
                 pc.EnableMovement();
-                Debug.Log("ª±®a²¾°Ê¤w¸T¥Î");
+                Debug.Log("ç©å®¶ç§»å‹•å·²ç¦ç”¨");
             }
         }
 
         currentState = BossState.UwU;
         animator.SetTrigger("UwUTrigger");
 
-        // ½T«O¥u¥Í¦¨¤@¦¸ UwU ª«¥ó
+        // ç¢ºä¿åªç”Ÿæˆä¸€æ¬¡ UwU ç‰©ä»¶
         if (!hasSpawnedUwU && uwuProjectile != null && player != null)
         {
             hasSpawnedUwU = true;
@@ -417,56 +417,40 @@ public class BossController : MonoBehaviour
                 rb.velocity = direction * 5f;
             }
 
-            // 5¬í«á¾P·´ UwU ª«¥ó
+            // 5ç§’å¾ŒéŠ·æ¯€ UwU ç‰©ä»¶
             Destroy(activeUwUProjectile, 5f);
         }
 
-        // ©µªø°Êµeªº«ùÄò®É¶¡¡A¨Ò¦pµ¥«İ 8 ¬í
+        // å»¶é•·å‹•ç•«çš„æŒçºŒæ™‚é–“ï¼Œä¾‹å¦‚ç­‰å¾… 8 ç§’
         yield return new WaitForSeconds(3f);
 
         secondPhase = true;
-        currentState = BossState.Idle;
+        currentState = BossState.Pickup;
         animator.SetTrigger("IdleTrigger");
 
 
     }
 
-
-
-    IEnumerator GunAttack()
-    {
-        animator.SetTrigger("GunTrigger");
-        yield return new WaitForSeconds(3f);
-        currentState = BossState.Follow;
-    }
-
-    IEnumerator SlashAttack()
-    {
-        animator.SetTrigger("SlashTrigger");
-        yield return new WaitForSeconds(3f);
-        currentState = BossState.Follow;
-    }
-
-    private bool isInvincible = false;  // ¬O§_³B©óµL¼Äª¬ºA
-    public float invincibleDuration = 1.5f;  // µL¼Ä®É¶¡
-    public float flashDuration = 0.7f;  // °{Ã{®É¶¡
-    public float flashInterval = 0.1f;  // °{Ã{¶¡¹j
+    private bool isInvincible = false;  // æ˜¯å¦è™•æ–¼ç„¡æ•µç‹€æ…‹
+    public float invincibleDuration = 1.5f;  // ç„¡æ•µæ™‚é–“
+    public float flashDuration = 0.7f;  // é–ƒçˆæ™‚é–“
+    public float flashInterval = 0.1f;  // é–ƒçˆé–“éš”
     private SpriteRenderer spriteRenderer;
 
 
     public void TakeDamage(float amount)
     {
-        if (isInvincible || isBarrageAttacking) return;  // µL¼Ä®É¤£¨ü¶Ë®`
+        if (isInvincible || isBarrageAttacking) return;  // ç„¡æ•µæ™‚ä¸å—å‚·å®³
 
         if (health <= 0) return;
 
         health -= amount;
-        Debug.Log("Boss ¨ü¶Ë, ²{¦b¦å¶q¡G" + health);
+        Debug.Log("Boss å—å‚·, ç¾åœ¨è¡€é‡ï¼š" + health);
         OnBossDamage?.Invoke();
 
         if (health <= 6 && !secondPhase)
         {
-            Debug.Log("Boss ª¬ºAÀ³¸Ó¤Á´«¨ì GloveThrow");
+            Debug.Log("Boss ç‹€æ…‹æ‡‰è©²åˆ‡æ›åˆ° GloveThrow");
             currentState = BossState.GloveThrow;
             StartCoroutine(GloveThrowAttack());
         }
@@ -480,8 +464,8 @@ public class BossController : MonoBehaviour
         }
         else
         {
-            StartCoroutine(InvincibilityTimer()); // ¶}©lµL¼Ä­p®É
-            StartCoroutine(InvincibilityFlash()); // Ä²µo°{Ã{
+            StartCoroutine(InvincibilityTimer()); // é–‹å§‹ç„¡æ•µè¨ˆæ™‚
+            StartCoroutine(InvincibilityFlash()); // è§¸ç™¼é–ƒçˆ
         }
     }
 
@@ -489,20 +473,20 @@ public class BossController : MonoBehaviour
     {
         float timer = 0f;
 
-        while (timer < flashDuration) // °{Ã{®É¶¡¤º¶i¦æ°{Ã{
+        while (timer < flashDuration) // é–ƒçˆæ™‚é–“å…§é€²è¡Œé–ƒçˆ
         {
             spriteRenderer.enabled = !spriteRenderer.enabled;
             yield return new WaitForSeconds(flashInterval);
             timer += flashInterval;
         }
 
-        spriteRenderer.enabled = true; // ½T«O°{Ã{µ²§ô®É¥i¨£
+        spriteRenderer.enabled = true; // ç¢ºä¿é–ƒçˆçµæŸæ™‚å¯è¦‹
     }
 
     IEnumerator InvincibilityTimer()
     {
         isInvincible = true;
-        yield return new WaitForSeconds(invincibleDuration); // µL¼Ä®É¶¡­Ë¼Æ
+        yield return new WaitForSeconds(invincibleDuration); // ç„¡æ•µæ™‚é–“å€’æ•¸
         isInvincible = false;
     }
 
@@ -522,70 +506,189 @@ public class BossController : MonoBehaviour
     {
         if (airDropItems.Length == 0 || airDropSpawnPoint == null) return;
 
-        int dropCount = Random.Range(1, 4); // ±¼¸¨ 1 ¨ì 3 ­Óª«¸ê
+        int dropCount = Random.Range(1, 4); // æ‰è½ 1 åˆ° 3 å€‹ç‰©è³‡
         for (int i = 0; i < dropCount; i++)
         {
             int randomIndex = Random.Range(0, airDropItems.Length);
             Instantiate(airDropItems[randomIndex], airDropSpawnPoint.position, Quaternion.identity);
-            Debug.Log("ªÅ§ëª«¸ê¥Í¦¨");
+            Debug.Log("ç©ºæŠ•ç‰©è³‡ç”Ÿæˆ");
         }
     }
 
-
-    // ·s¼W¡GªÅ§ë¾ß¨ú°Ñ¼Æ»PºX¼Ğ
-    public float pickupSpeed = 3f;
-    public float pickupDistance = 1.5f;
     private bool isPicking = false;
-
+    private bool hasPickedUp = false; // ç¢ºä¿ Boss åªæœƒæ’¿ä¸€æ¬¡ï¼Œé¿å…é‡è¤‡
+    private GameObject currentAirdrop = null; // ç•¶å‰ç©ºæŠ•ç‰©è³‡
+    private int sniperChance = 70; // ç‹™æ“Šæ§æ‰è½æ©Ÿç‡ (70%)
 
     IEnumerator PickupAirdrop()
     {
-        isPicking = true;
-        // ¨ú±o©Ò¦³¼ĞÅÒ¬° "Airdrop" ªºªÅ§ëª«¸ê
-        GameObject[] airdrops = GameObject.FindGameObjectsWithTag("Airdrop");
-        if (airdrops.Length == 0)
+        isPicking = true;  // é–‹å§‹æ’¿å–
+        if (hasPickedUp || currentAirdrop != null) yield break; // ç¢ºä¿æ¯æ¬¡åªæ’¿ä¸€å€‹
+
+        hasPickedUp = true; // é¿å…å¤šæ¬¡æ’¿å–
+        animator.SetTrigger("PickupTrigger"); // æ’­æ”¾è·³èºæ’¿å–å‹•ç•«
+        yield return new WaitForSeconds(0.5f); // ç­‰å¾…è·³èºæ™‚é–“
+
+        // éš¨æ©Ÿé¸æ“‡æ‰è½ç‰©è³‡ (ç‹™æ“Šæ§æ©Ÿç‡è¼ƒé«˜)
+        GameObject chosenItem = Random.Range(0, 100) < sniperChance ? airDropItems[0] : airDropItems[1];
+
+        // åœ¨ Boss é ­ä¸Šç”Ÿæˆç©ºæŠ•ç‰©è³‡
+        Vector3 spawnPos = transform.position + new Vector3(0, 3f, 0);
+        currentAirdrop = Instantiate(chosenItem, spawnPos, Quaternion.identity);
+        Debug.Log($"ç©ºæŠ•ç‰©è³‡ç”Ÿæˆ: {chosenItem.name} at {spawnPos}");
+
+        yield return new WaitForSeconds(0.5f); // çµ¦ Boss æ’¿å–çš„æ™‚é–“
+
+        // ç›´æ¥è§¸ç™¼å°æ‡‰æ”»æ“Š
+        if (chosenItem.name.Contains("Sniper"))
         {
-            Debug.Log("¨S¦³§ä¨ìªÅ§ëª«¸ê");
-            isPicking = false;
-            currentState = BossState.Idle;
-            yield break;
+            Debug.Log("Boss æ’¿åˆ°ç‹™æ“Šæ§ï¼Œé€²è¡Œ GunAttack");
+            Destroy(currentAirdrop);
+            StartCoroutine(GunAttack());
+        }
+        else if (chosenItem.name.Contains("Wand"))
+        {
+
+            Debug.Log("Boss æ’¿åˆ°ç‹™æ“Šæ§ï¼Œé€²è¡Œ GunAttack");
+            Destroy(currentAirdrop);
+            StartCoroutine(GunAttack());
+
+            // Debug.Log("Boss æ’¿åˆ°é­”æ³•æ–ï¼Œé€²è¡Œ SlashAttack");
+            //Destroy(currentAirdrop);
+            // StartCoroutine(SlashAttack());
         }
 
-        // §ä¥X³ÌªñªºªÅ§ëª«¸ê
-        GameObject targetAirdrop = null;
-        float closestDistance = Mathf.Infinity;
-        foreach (GameObject item in airdrops)
+        yield return new WaitForSeconds(3f); // ç­‰å¾…æ”»æ“ŠçµæŸï¼Œé¿å…ç©ºæŠ•ç‰©è³‡é‡ç–Š
+        hasPickedUp = false; // å…è¨±å†æ¬¡ç”Ÿæˆç©ºæŠ•ç‰©è³‡
+        currentAirdrop = null; // æ¸…é™¤ç•¶å‰ç©ºæŠ•ç‰©è³‡
+    }
+
+
+
+    public GameObject aimingContainerPrefab; // ç„æº–åœˆçš„å®¹å™¨é è£½é«”
+    private bool isGunAttacking = false; // é˜²æ­¢é‡è¤‡åŸ·è¡Œ
+    private float hitRadius = 3f; // è®“ hitRadius æˆç‚ºé¡åˆ¥è®Šæ•¸
+
+    IEnumerator GunAttack()
+    {
+        if (isGunAttacking) yield break; // é˜²æ­¢é‡è¤‡åŸ·è¡Œ
+        isGunAttacking = true;
+
+        Debug.Log("Egirl é–‹å§‹æ§æ”»æ“Šï¼");
+        currentState = BossState.Gun;
+        animator.SetBool("IsGun", true);
+
+        yield return new WaitForSeconds(1f); // æ”»æ“Šå‰çš„å»¶é²
+
+        int ringCount = 3; // ç”¢ç”Ÿä¸‰å€‹ç„æº–åœˆ
+        float ringSpawnDelay = 0.5f; // æ¯å€‹åœˆçš„é–“éš”æ™‚é–“
+        float shrinkDuration = 0.5f; // ç¸®å°æ‰€éœ€æ™‚é–“
+
+        GameObject previousAimingContainer = null; // ç”¨ä¾†å„²å­˜ä¸Šä¸€å€‹ AimingContainer
+
+        for (int i = 0; i < ringCount; i++)
         {
-            float distance = Vector2.Distance(transform.position, item.transform.position);
-            if (distance < closestDistance)
+            // åœ¨ç”Ÿæˆæ–°çš„ AimingContainer ä¹‹å‰ï¼Œæ‘§æ¯€ä¸Šä¸€å€‹
+            if (previousAimingContainer != null)
             {
-                closestDistance = distance;
-                targetAirdrop = item;
+                Destroy(previousAimingContainer); // åˆªé™¤ä¸Šä¸€å€‹ AimingContainer
             }
+
+            Vector3 playerPos = player.transform.position; // è¨˜éŒ„ç©å®¶ç•¶å‰ä½ç½®
+
+            // ç”¢ç”Ÿ AimingContainer
+            GameObject aimingContainer = Instantiate(aimingContainerPrefab, playerPos, Quaternion.identity);
+            previousAimingContainer = aimingContainer; // è¨˜éŒ„ç•¶å‰çš„ AimingContainer
+
+            Transform aimingRing = aimingContainer.transform.Find("AimingRing"); // å–å¾— AimingRing
+
+            if (aimingRing == null)
+            {
+                Debug.LogError("AimingContainer ç¼ºå°‘ AimingRingï¼");
+                Destroy(aimingContainer);
+                continue;
+            }
+
+            // è®“ AimingRing ç¸®å°ï¼Œä¸¦åœ¨ç¸®å°çµæŸæ™‚åˆ¤å®šå‚·å®³
+            StartCoroutine(ShrinkAimingRing(aimingRing, shrinkDuration));
+
+            yield return new WaitForSeconds(ringSpawnDelay);
         }
 
-        // ²¾°Ê¨ìªÅ§ëª«¸ê
-        while (targetAirdrop != null && Vector2.Distance(transform.position, targetAirdrop.transform.position) > pickupDistance)
+        // **é€™è£¡ä¸å†é¡å¤–ç­‰å¾…åˆ¤å®šå‚·å®³ï¼Œè®“ ShrinkAimingRing() ç›´æ¥è™•ç†**
+
+
+        isGunAttacking = false; // æ¢å¾©ç‹€æ…‹
+        animator.SetBool("IsGun", false);
+        currentState = BossState.Idle;
+        Debug.Log("Egirl çµæŸæ§æ”»æ“Šï¼Œå›åˆ° Idle ç‹€æ…‹ã€‚");
+    }
+
+
+    IEnumerator ShrinkAimingRing(Transform aimingRing, float duration)
+    {
+        Vector3 initialScale = aimingRing.localScale;
+        Vector3 targetScale = new Vector3(0.3f, 0.3f, 1); // æœ€å°ç¸®æ”¾å€¼
+
+        float elapsedTime = 0;
+        while (elapsedTime < duration)
         {
-            transform.position = Vector2.MoveTowards(transform.position, targetAirdrop.transform.position, pickupSpeed * Time.deltaTime);
+            aimingRing.localScale = Vector3.Lerp(initialScale, targetScale, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        // ·í¶i¤J¾ß¨ú½d³ò«á¡AÄ²µo JumpGrab °Êµe
-        animator.SetTrigger("JumpGrab");
-        Debug.Log("Ä²µo JumpGrab °Êµe");
-        yield return new WaitForSeconds(1f); // °²³]°Êµeªø«×¬° 1 ¬í
+        aimingRing.localScale = targetScale; // ç¢ºä¿æœ€çµ‚ç¸®æ”¾å¤§å°
 
-        if (targetAirdrop != null)
+        // **ç¸®å°å®Œæˆå¾Œç«‹å³åˆ¤å®šå‚·å®³**
+        Vector3 ringPos = aimingRing.position;
+        float distance = Vector3.Distance(player.transform.position, ringPos);
+
+        Debug.Log($"[GunAttack] ç©å®¶ä½ç½®: {player.transform.position}, ç„æº–åœˆä½ç½®: {ringPos}, è·é›¢: {distance}, åˆ¤å®šåŠå¾‘: {hitRadius}");
+
+        if (distance <= hitRadius)
         {
-            Debug.Log("¦¨¥\¨ú±oªÅ§ëª«¸ê¡I");
-            Destroy(targetAirdrop);
+            PlayerController playerController = player.GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.TakeDamage(1);
+                Debug.Log("[GunAttack] ç„æº–åœˆç¸®å°çµæŸï¼Œæ“Šä¸­ç©å®¶ï¼Œæ‰£é™¤ 2 é»è¡€é‡ï¼");
+            }
+            else
+            {
+                Debug.LogError("[GunAttack] PlayerController å–å¾—å¤±æ•—ï¼");
+            }
+        }
+        else
+        {
+            Debug.Log("[GunAttack] ç©å®¶åœ¨ç¸®å°çµæŸæ™‚ä¸åœ¨ç¯„åœå…§ï¼Œæœªæ‰£è¡€ï¼");
         }
 
-        isPicking = false;
-        // ¾ß¨ú§¹«á¥i¥H¨Ì¾Ú¨ú±oª««~Ãş«¬¨Ó¨M©w¤U¤@¨B§ğÀ»¡A³o¸Ì¥ı¦^ Idle
+        // **ç¢ºä¿ AimingContainer è¢«åˆªé™¤**
+        if (aimingRing.parent != null)
+        {
+            Destroy(aimingRing.parent.gameObject);
+            Debug.Log("[GunAttack] AimingContainer å·²æˆåŠŸåˆªé™¤ï¼");
+        }
+        else
+        {
+            Debug.LogWarning("[GunAttack] ç„æº–åœˆçš„çˆ¶ç‰©ä»¶å·²ä¸å­˜åœ¨ï¼");
+        }
+    }
+
+
+
+
+
+    IEnumerator SlashAttack()
+    {
+        animator.SetTrigger("SlashTrigger");
+        yield return new WaitForSeconds(3f);
+        animator.SetTrigger("IdleTrigger");
         currentState = BossState.Idle;
     }
+
+
 
 
     IEnumerator DefeatSequence()

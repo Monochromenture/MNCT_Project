@@ -9,6 +9,7 @@ TagManager:
   - Checkpoint
   - Portal
   - Boss
+  - Airdrop
   layers:
   - Default
   - TransparentFX
