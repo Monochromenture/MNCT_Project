@@ -10,6 +10,7 @@ TagManager:
   - Portal
   - Boss
   - Airdrop
+  - Platform
   layers:
   - Default
   - TransparentFX

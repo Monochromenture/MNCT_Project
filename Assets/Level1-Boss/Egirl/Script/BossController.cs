@@ -17,7 +17,7 @@ public class BossController : MonoBehaviour
     public float maxY = 20f;
     public float stopDistance = 2f;
 
-    public enum BossState { Idle, Follow, Kick, Punch, Barrage, GloveThrow, UwU, Pickup, Gun, Slash, Defeated }
+    public enum BossState { Idle, Follow, Kick, Punch, Barrage, GloveThrow, UwU, Pickup, GunAttack, Slash, Defeated }
     private BossState currentState = BossState.Idle;
 
     public Animator animator;
@@ -38,11 +38,15 @@ public class BossController : MonoBehaviour
     private float lastBarrageEndTime = 0f;
     private bool isBarrageAttacking = false;  // 新增旗標
 
+
+
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         currentState = BossState.Follow;
         StartCoroutine(AIUpdate());
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+
     }
 
     private void Update()
@@ -82,7 +86,7 @@ public class BossController : MonoBehaviour
                 case BossState.Pickup:
                     if (!isPicking) StartCoroutine(PickupAirdrop());
                     break;
-                case BossState.Gun:
+                case BossState.GunAttack:
                     StartCoroutine(GunAttack());
                     break;
                 case BossState.Slash:
@@ -106,7 +110,6 @@ public class BossController : MonoBehaviour
 
         if (secondPhase)
         {
-            // 進入第二階段時，預設切換至 Idle 狀態
             currentState = BossState.Idle;
             Debug.Log("第二階段：切換到 Idle 狀態。");
             return;
@@ -156,6 +159,7 @@ public class BossController : MonoBehaviour
         if (secondPhase)
         {
             currentState = BossState.Pickup; // 進入撿取物資狀態
+            animator.SetTrigger("PickupTrigger");
             yield break;
         }
 
@@ -316,7 +320,6 @@ public class BossController : MonoBehaviour
 
 
 
-    private bool spawnAirdropsActive = false;
 
     // 定義空投物資生成時的 X 範圍與頂端 Y 座標
     public float airdropSpawnMinX = -12f;
@@ -502,19 +505,6 @@ public class BossController : MonoBehaviour
         }
     }
 
-    void SpawnAirdrops()
-    {
-        if (airDropItems.Length == 0 || airDropSpawnPoint == null) return;
-
-        int dropCount = Random.Range(1, 4); // 掉落 1 到 3 個物資
-        for (int i = 0; i < dropCount; i++)
-        {
-            int randomIndex = Random.Range(0, airDropItems.Length);
-            Instantiate(airDropItems[randomIndex], airDropSpawnPoint.position, Quaternion.identity);
-            Debug.Log("空投物資生成");
-        }
-    }
-
     private bool isPicking = false;
     private bool hasPickedUp = false; // 確保 Boss 只會撿一次，避免重複
     private GameObject currentAirdrop = null; // 當前空投物資
@@ -549,18 +539,16 @@ public class BossController : MonoBehaviour
         else if (chosenItem.name.Contains("Wand"))
         {
 
-            Debug.Log("Boss 撿到狙擊槍，進行 GunAttack");
+            Debug.Log("Boss 撿到魔法杖，進行 SlashAttack");
             Destroy(currentAirdrop);
-            StartCoroutine(GunAttack());
-
-            // Debug.Log("Boss 撿到魔法杖，進行 SlashAttack");
-            //Destroy(currentAirdrop);
-            // StartCoroutine(SlashAttack());
+            StartCoroutine(SlashAttack());
         }
 
-        yield return new WaitForSeconds(3f); // 等待攻擊結束，避免空投物資重疊
-        hasPickedUp = false; // 允許再次生成空投物資
-        currentAirdrop = null; // 清除當前空投物資
+        //yield return new WaitForSeconds(5f); // 等待攻擊結束，避免空投物資重疊
+       // hasPickedUp = false; // 允許再次生成空投物資
+       // isPicking = false;
+        //currentAirdrop = null; // 清除當前空投物資
+
     }
 
 
@@ -575,7 +563,7 @@ public class BossController : MonoBehaviour
         isGunAttacking = true;
 
         Debug.Log("Egirl 開始槍攻擊！");
-        currentState = BossState.Gun;
+        currentState = BossState.GunAttack;
         animator.SetBool("IsGun", true);
 
         yield return new WaitForSeconds(1f); // 攻擊前的延遲
@@ -621,9 +609,16 @@ public class BossController : MonoBehaviour
         isGunAttacking = false; // 恢復狀態
         animator.SetBool("IsGun", false);
         currentState = BossState.Idle;
-        Debug.Log("Egirl 結束槍攻擊，回到 Idle 狀態。");
-    }
+        animator.SetTrigger("IdleTrigger");
+        Debug.Log("Egirl 結束槍攻擊，回到 Pickup 狀態。");
 
+
+        yield return new WaitForSeconds(2f); // 等待攻擊結束，避免空投物資重疊
+        hasPickedUp = false; // 允許再次生成空投物資
+        isPicking = false;
+        currentAirdrop = null; // 清除當前空投物資
+
+    }
 
     IEnumerator ShrinkAimingRing(Transform aimingRing, float duration)
     {
@@ -678,17 +673,154 @@ public class BossController : MonoBehaviour
 
 
 
-
+    public GameObject platformPrefab; // 平台的預製物件
+    public int platformCount = 5; // 固定平台數量
+    public float platformSpacing = 3f; // 平台之間的X間隔
+    public float platformMinY = -2f, platformMaxY = 2f; // 平台的Y軸範圍
+    public float platformSpeed = 2f; // 平台移動速度
+    private List<GameObject> activePlatforms = new List<GameObject>();
+    private bool isPlatformPhase = false;
+    private bool isSlashAttacking = false; // 新增旗標
 
     IEnumerator SlashAttack()
     {
-        animator.SetTrigger("SlashTrigger");
-        yield return new WaitForSeconds(3f);
-        animator.SetTrigger("IdleTrigger");
+        // 防止重複執行
+        if (isSlashAttacking)
+            yield break;
+        isSlashAttacking = true;
+
+        // 讓 Boss 移動到畫面右側
+        Vector3 targetPosition = new Vector3(maxX - 3f, transform.position.y, transform.position.z);
+        while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, followSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // 播放 Slash 動畫
+        animator.SetBool("IsSlash" ,true);
+        yield return new WaitForSeconds(1f);
+
+        // 生成平台
+        isPlatformPhase = true;
+        GeneratePlatforms();
+
+        // 傳送玩家到最近的平台
+        TransportPlayerToNearestPlatform();
+
+        // 等待直到所有平台消失
+        yield return new WaitUntil(() => activePlatforms.Count == 0);
+
+        animator.SetBool("IsSlash", false);
         currentState = BossState.Idle;
+
+        isSlashAttacking = false; // 結束後重置旗標
+
+        yield return new WaitForSeconds(5f); // 等待攻擊結束，避免空投物資重疊
+        hasPickedUp = false; // 允許再次生成空投物資
+        isPicking = false;
+        currentAirdrop = null; // 清除當前空投物資
+    }
+
+    void TransportPlayerToNearestPlatform()
+    {
+        if (player == null || activePlatforms.Count == 0) return;
+
+        GameObject nearestPlatform = activePlatforms[0];
+        float minDistance = Mathf.Abs(player.position.x - nearestPlatform.transform.position.x);
+
+        // 找出最近的平台
+        foreach (var platform in activePlatforms)
+        {
+            float distance = Mathf.Abs(player.position.x - platform.transform.position.x);
+            if (distance < minDistance)
+            {
+                nearestPlatform = platform;
+                minDistance = distance;
+            }
+        }
+
+        // 讓玩家傳送到平台上方
+        Vector3 targetPosition = nearestPlatform.transform.position + Vector3.up * 1.8f;
+
+        // 取得 Collider2D
+        Collider2D playerCollider = player.GetComponent<Collider2D>();
+
+        // 先關閉碰撞，確保不會卡進平台
+        if (playerCollider != null)
+        {
+            playerCollider.enabled = false;
+        }
+
+        // 立即設定位置
+        player.position = targetPosition;
+
+        // 0.1 秒後恢復碰撞，確保正常落地
+        StartCoroutine(ReenableCollision(playerCollider, 0.1f));
+    }
+
+    // 只負責恢復碰撞，不影響重力
+    IEnumerator ReenableCollision(Collider2D playerCollider, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (playerCollider != null)
+        {
+            playerCollider.enabled = true;
+        }
+    }
+
+    void GeneratePlatforms()
+    {
+        if (activePlatforms.Count > 0) return; // 防止過多生成
+
+        float startX = minX;
+        for (int i = 0; i < platformCount; i++)
+        {
+            float posY = Random.Range(platformMinY, platformMaxY);
+            Vector3 spawnPos = new Vector3(startX + (i * platformSpacing), posY, 0);
+            GameObject platform = Instantiate(platformPrefab, spawnPos, Quaternion.identity);
+            activePlatforms.Add(platform);
+        }
+        StartCoroutine(MovePlatforms());
     }
 
 
+    IEnumerator MovePlatforms()
+    {
+        while (isPlatformPhase && activePlatforms.Count > 0)
+        {
+            for (int i = activePlatforms.Count - 1; i >= 0; i--)
+            {
+                if (activePlatforms[i] != null)
+                {
+                    activePlatforms[i].transform.position += Vector3.right * platformSpeed * Time.deltaTime;
+
+                    // 檢查平台是否超過 Boss 的位置
+                    if (activePlatforms[i].transform.position.x > maxX)
+                    {
+                        Destroy(activePlatforms[i]);
+                        activePlatforms.RemoveAt(i);
+                    }
+                }
+            }
+            yield return null;
+        }
+        EndPlatformPhase();
+    }
+
+    void EndPlatformPhase()
+    {
+        isPlatformPhase = false;
+        foreach (var platform in activePlatforms)
+        {
+            if (platform != null)
+            {
+                Destroy(platform);
+            }
+        }
+        activePlatforms.Clear();
+    }
 
 
     IEnumerator DefeatSequence()
