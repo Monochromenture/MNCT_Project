@@ -742,32 +742,9 @@ public class BossController : MonoBehaviour
 
         // 讓玩家傳送到平台上方
         Vector3 targetPosition = nearestPlatform.transform.position + Vector3.up * 1.8f;
-
-        // 取得 Collider2D
-        Collider2D playerCollider = player.GetComponent<Collider2D>();
-
-        // 先關閉碰撞，確保不會卡進平台
-        if (playerCollider != null)
-        {
-            playerCollider.enabled = false;
-        }
-
         // 立即設定位置
         player.position = targetPosition;
 
-        // 0.1 秒後恢復碰撞，確保正常落地
-        StartCoroutine(ReenableCollision(playerCollider, 0.1f));
-    }
-
-    // 只負責恢復碰撞，不影響重力
-    IEnumerator ReenableCollision(Collider2D playerCollider, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        if (playerCollider != null)
-        {
-            playerCollider.enabled = true;
-        }
     }
 
     void GeneratePlatforms()
