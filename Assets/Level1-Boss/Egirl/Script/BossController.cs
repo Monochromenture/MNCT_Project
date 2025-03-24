@@ -545,8 +545,8 @@ public class BossController : MonoBehaviour
         }
 
         //yield return new WaitForSeconds(5f); // 等待攻擊結束，避免空投物資重疊
-       // hasPickedUp = false; // 允許再次生成空投物資
-       // isPicking = false;
+        //hasPickedUp = false; // 允許再次生成空投物資
+        //isPicking = false;
         //currentAirdrop = null; // 清除當前空投物資
 
     }
@@ -613,7 +613,7 @@ public class BossController : MonoBehaviour
         Debug.Log("Egirl 結束槍攻擊，回到 Pickup 狀態。");
 
 
-        yield return new WaitForSeconds(2f); // 等待攻擊結束，避免空投物資重疊
+        yield return new WaitForSeconds(1f); //攻擊結束冷卻時間
         hasPickedUp = false; // 允許再次生成空投物資
         isPicking = false;
         currentAirdrop = null; // 清除當前空投物資
@@ -680,14 +680,9 @@ public class BossController : MonoBehaviour
     public float platformSpeed = 2f; // 平台移動速度
     private List<GameObject> activePlatforms = new List<GameObject>();
     private bool isPlatformPhase = false;
-    private bool isSlashAttacking = false; // 新增旗標
 
     IEnumerator SlashAttack()
     {
-        // 防止重複執行
-        if (isSlashAttacking)
-            yield break;
-        isSlashAttacking = true;
 
         // 讓 Boss 移動到畫面右側
         Vector3 targetPosition = new Vector3(maxX - 3f, transform.position.y, transform.position.z);
@@ -714,9 +709,8 @@ public class BossController : MonoBehaviour
         animator.SetBool("IsSlash", false);
         currentState = BossState.Idle;
 
-        isSlashAttacking = false; // 結束後重置旗標
 
-        yield return new WaitForSeconds(5f); // 等待攻擊結束，避免空投物資重疊
+        yield return new WaitForSeconds(1f); //攻擊結束冷卻時間
         hasPickedUp = false; // 允許再次生成空投物資
         isPicking = false;
         currentAirdrop = null; // 清除當前空投物資

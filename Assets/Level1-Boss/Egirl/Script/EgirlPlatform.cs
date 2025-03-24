@@ -2,14 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class EgirlPlatform : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            collision.transform.SetParent(transform); // 設為子物件，跟隨平台移動
+            Rigidbody2D playerRb = collision.GetComponent<Rigidbody2D>();
+            if (playerRb != null)
+            {
+                FixedJoint2D joint = collision.gameObject.AddComponent<FixedJoint2D>();
+                joint.connectedBody = GetComponent<Rigidbody2D>(); // 讓玩家跟隨平台
+                joint.autoConfigureConnectedAnchor = true;
+                joint.enableCollision = false;
+            }
         }
     }
 
@@ -17,7 +23,11 @@ public class EgirlPlatform : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            collision.transform.SetParent(null); // 解除父物件關係，恢復獨立移動
+            FixedJoint2D joint = collision.GetComponent<FixedJoint2D>();
+            if (joint != null)
+            {
+                Destroy(joint); // 讓玩家恢復獨立移動
+            }
         }
     }
 }

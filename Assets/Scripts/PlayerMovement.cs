@@ -87,7 +87,7 @@ public class PlayerMovement : MonoBehaviour
         anim.SetBool("Walk", Mathf.Abs(moveInput) > 0.1f);
     }
 
-    private void HandleJump()
+    public void HandleJump()
     {
         bool isGrounded = IsGrounded();
 
