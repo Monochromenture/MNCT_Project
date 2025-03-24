@@ -683,38 +683,65 @@ public class BossController : MonoBehaviour
 
     IEnumerator SlashAttack()
     {
-
-        // 讓 Boss 移動到畫面右側
-        Vector3 targetPosition = new Vector3(maxX - 3f, transform.position.y, transform.position.z);
-        while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, followSpeed * Time.deltaTime);
-            yield return null;
-        }
-
-        // 播放 Slash 動畫
-        animator.SetBool("IsSlash" ,true);
+        // Boss 移動到右側，然後播放動畫...
+        animator.SetBool("IsSlash", true);
         yield return new WaitForSeconds(1f);
 
         // 生成平台
         isPlatformPhase = true;
         GeneratePlatforms();
 
-        // 傳送玩家到最近的平台
+        // 傳送玩家
         TransportPlayerToNearestPlatform();
 
-        // 等待直到所有平台消失
-        yield return new WaitUntil(() => activePlatforms.Count == 0);
+        bool playerHitGround = false; // 標記玩家是否掉到地上
+        bool playerHitBoss = false;   // 標記玩家是否碰到 Boss
 
+        while (isPlatformPhase)
+        {
+            // 檢查玩家是否掉到地面
+            if (!playerOnPlatform())
+            {
+                playerHitGround = true;
+            }
+
+            // 檢查玩家是否碰到 Boss
+            if (playerTouchedBoss())
+            {
+                playerHitBoss = true;
+            }
+
+            if (playerHitGround || playerHitBoss)
+            {
+                // 扣玩家一滴血
+                PlayerController playerController = player.GetComponent<PlayerController>();
+                if (playerController != null)
+                {
+                    playerController.TakeDamage(1);
+                }
+
+                Debug.Log("玩家掉到地面或碰到Boss，SlashAttack 結束！");
+                break;
+
+            }
+
+            yield return null;
+        }
+
+        // 銷毀所有平台
+        EndPlatformPhase();
+
+        // SlashAttack 結束
         animator.SetBool("IsSlash", false);
         currentState = BossState.Idle;
-
 
         yield return new WaitForSeconds(1f); //攻擊結束冷卻時間
         hasPickedUp = false; // 允許再次生成空投物資
         isPicking = false;
         currentAirdrop = null; // 清除當前空投物資
+
     }
+
 
     void TransportPlayerToNearestPlatform()
     {
@@ -791,6 +818,57 @@ public class BossController : MonoBehaviour
             }
         }
         activePlatforms.Clear();
+    }
+
+
+    // 判斷玩家是否站在平台上
+    private bool playerOnPlatform()
+    {
+        Transform groundCheck = player.Find("GroundCheck"); // 找到玩家的 GroundCheck 物件
+        if (groundCheck == null)
+        {
+            Debug.LogError("找不到 GroundCheck，請確保玩家物件內有一個名為 GroundCheck 的子物件！");
+            return false;
+        }
+
+        float checkRadius = 0.2f; // GroundCheck 檢測半徑，和 PlayerMovement.cs 內一致
+        LayerMask groundLayer = LayerMask.GetMask("Ground"); // 只檢測 Ground 層
+
+        bool grounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+
+        if (grounded)
+        {
+            Debug.Log("玩家沒有站在 Ground 上");
+            return false;
+        }
+        else
+        {
+            Debug.Log("玩家正在站在 Ground 上：" + groundCheck.position);
+            return true;
+
+        }
+
+    }
+
+
+
+    private bool playerTouchedBoss()
+    {
+        Collider2D playerCollider = player.GetComponent<Collider2D>();
+        Collider2D bossCollider = GetComponent<Collider2D>();
+
+        //return playerCollider.IsTouching(bossCollider);
+
+        if (playerCollider.IsTouching(bossCollider))
+        {
+            Debug.Log("玩家碰到Boss了！");
+            return true;
+        }
+
+        Debug.Log("玩家沒有碰到Boss");
+        return false;
+
+
     }
 
 

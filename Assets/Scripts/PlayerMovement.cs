@@ -29,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundCheck;
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
+    public LayerMask platformLayer;
 
     public GameObject weapon1;
     public GameObject weapon2;
@@ -117,6 +118,37 @@ public class PlayerMovement : MonoBehaviour
 
             jumpPressed = false;
         }
+
+        bool isPlatform = IsPlatform();
+
+        if (isPlatform)
+        {
+            canDoubleJump = true; // 角色落地時重置雙跳
+            hasAirJumped = false; // 角色落地時重置補救跳躍
+        }
+
+        if (jumpPressed)
+        {
+            if (isPlatform || (enableAirJump && !hasAirJumped))
+            {
+                Jump();
+                hasAirJumped = true; // 標記補救跳躍已執行
+
+                if (!isPlatform) // 如果已經在空中跳躍，則啟用雙跳
+                {
+                    canDoubleJump = false;
+                }
+            }
+            else if (enableDoubleJump && canDoubleJump)
+            {
+                Jump();
+                canDoubleJump = false; // 禁用雙跳
+            }
+
+            jumpPressed = false;
+        }
+
+
     }
 
     private void Jump()
@@ -129,6 +161,12 @@ public class PlayerMovement : MonoBehaviour
     {
         return Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
+
+    private bool IsPlatform()
+    {
+        return Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, platformLayer);
+    }
+
 
     private void ClampPlayerPosition()
     {

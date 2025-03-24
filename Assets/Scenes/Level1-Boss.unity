@@ -3234,6 +3234,9 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  platformLayer:
+    serializedVersion: 2
+    m_Bits: 512
   weapon1: {fileID: 394789935}
   weapon2: {fileID: 2119697380}
   rigid2D: {fileID: 1246528679}
