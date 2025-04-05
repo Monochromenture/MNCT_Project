@@ -57,7 +57,7 @@ public class Weapon1 : MonoBehaviour
     {
         if (isAttacking && collision.CompareTag("Enemy") && Time.time - lastDamageTime > attackCooldown)
         {
-            BossController boss = collision.GetComponent<BossController>();
+            EgirlController boss = collision.GetComponent<EgirlController>();
             if (boss != null)
             {
                 boss.TakeDamage(1); // ¦©¦å
@@ -71,7 +71,7 @@ public class Weapon1 : MonoBehaviour
     {
         if (isAttacking && collision.CompareTag("Enemy"))
         {
-            BossController boss = collision.GetComponent<BossController>();
+            EgirlController boss = collision.GetComponent<EgirlController>();
             if (boss != null)
             {
                 boss.TakeDamage(1);

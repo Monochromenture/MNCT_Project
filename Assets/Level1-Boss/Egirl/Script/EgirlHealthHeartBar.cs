@@ -2,22 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BossHealthHeartBar : MonoBehaviour
+public class EgirlHealthHeartBar : MonoBehaviour
 {
     public GameObject heartPrefab;  // 血量條的愛心預製體
-    public BossController bossHealth;  // Boss 的血量
+    public EgirlController bossHealth;  // Boss 的血量
     private List<HealthHeart> hearts = new List<HealthHeart>();
 
     private void OnEnable()
     {
-        BossController.OnBossDamage += DrawHearts;  // 訂閱 Boss 受傷事件
-        BossController.OnBossRespawn += DrawHearts; // 訂閱 Boss 復活事件
+        EgirlController.OnBossDamage += DrawHearts;  // 訂閱 Boss 受傷事件
+        EgirlController.OnBossRespawn += DrawHearts; // 訂閱 Boss 復活事件
     }
 
     private void OnDisable()
     {
-        BossController.OnBossDamage -= DrawHearts;
-        BossController.OnBossRespawn -= DrawHearts;
+        EgirlController.OnBossDamage -= DrawHearts;
+        EgirlController.OnBossRespawn -= DrawHearts;
     }
 
     private void Start()

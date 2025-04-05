@@ -4,8 +4,9 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
-public class BossController : MonoBehaviour
+public class EgirlController : MonoBehaviour
 {
     public static event System.Action OnBossDamage;
     public static event System.Action OnBossRespawn;
@@ -352,8 +353,7 @@ public class BossController : MonoBehaviour
             }
         }
 
-        // Stop the Boss from following the player while performing the attack
-        currentState = BossState.Idle;  // Change the state to Idle or another state where the Boss doesn't follow the player
+        currentState = BossState.Idle;  
 
         float bossOffset = 8f;   // Boss 距離畫面右邊的偏移量
         float playerOffset = 3f; // 玩家距離畫面左邊的偏移量
@@ -377,7 +377,7 @@ public class BossController : MonoBehaviour
         // 播放 GloveThrow 動畫
         animator.SetTrigger("GloveThrowTrigger");
         Debug.Log("播放GloveThrow動畫");
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
         isAttacking = false;
 
         // 恢復 Boss 行為狀態
@@ -388,7 +388,7 @@ public class BossController : MonoBehaviour
 
 
     public Transform uwuSpawnPoint;
-    private GameObject activeUwUProjectile = null;
+    //private GameObject activeUwUProjectile = null;
     private bool hasSpawnedUwU = false;  // 新增旗標，確保只生成一次
 
     IEnumerator UwUAttack()
@@ -399,15 +399,17 @@ public class BossController : MonoBehaviour
             if (pc != null)
             {
                 pc.EnableMovement();
-                Debug.Log("玩家移動已禁用");
+                Debug.Log("玩家移動已啟用");
             }
         }
 
         currentState = BossState.UwU;
         animator.SetTrigger("UwUTrigger");
 
+        hasSpawnedUwU = true;
+
         // 確保只生成一次 UwU 物件
-        if (!hasSpawnedUwU && uwuProjectile != null && player != null)
+        /*if (!hasSpawnedUwU && uwuProjectile != null && player != null)
         {
             hasSpawnedUwU = true;
             Vector3 spawnPos = (uwuSpawnPoint != null) ? uwuSpawnPoint.position : transform.position;
@@ -422,9 +424,9 @@ public class BossController : MonoBehaviour
 
             // 5秒後銷毀 UwU 物件
             Destroy(activeUwUProjectile, 5f);
-        }
+        }*/
 
-        // 延長動畫的持續時間，例如等待 8 秒
+        // 延長動畫的持續時間，例如等待 3 秒
         yield return new WaitForSeconds(3f);
 
         secondPhase = true;
@@ -463,6 +465,7 @@ public class BossController : MonoBehaviour
         {
             health = 0;
             currentState = BossState.Defeated;
+            CancelSlashAttack(); // 取消 SlashAttack 並銷毀所有平台
             StartCoroutine(DefeatSequence());
         }
         else
@@ -471,6 +474,26 @@ public class BossController : MonoBehaviour
             StartCoroutine(InvincibilityFlash()); // 觸發閃爍
         }
     }
+
+
+    void CancelSlashAttack()
+    {
+        if (isPlatformPhase)
+        {
+            isPlatformPhase = false;
+            foreach (var platform in activePlatforms)
+            {
+                if (platform != null)
+                {
+                    Destroy(platform);
+                }
+            }
+            activePlatforms.Clear();
+            animator.SetBool("IsSlash", false);
+        }
+    }
+
+
 
     IEnumerator InvincibilityFlash()
     {
@@ -683,7 +706,6 @@ public class BossController : MonoBehaviour
 
     IEnumerator SlashAttack()
     {
-        // Boss 移動到右側，然後播放動畫...
         animator.SetBool("IsSlash", true);
         yield return new WaitForSeconds(1f);
 
@@ -692,7 +714,19 @@ public class BossController : MonoBehaviour
         GeneratePlatforms();
 
         // 傳送玩家
-        TransportPlayerToNearestPlatform();
+
+        if (health <= 0)
+        {
+            EndPlatformPhase();
+            animator.SetBool("IsSlash", false);
+            currentState = BossState.Idle;
+            yield break;
+        }
+        else 
+        { 
+                TransportPlayerToNearestPlatform();
+        }
+
 
         bool playerHitGround = false; // 標記玩家是否掉到地上
         bool playerHitBoss = false;   // 標記玩家是否碰到 Boss
@@ -795,7 +829,7 @@ public class BossController : MonoBehaviour
                     activePlatforms[i].transform.position += Vector3.right * platformSpeed * Time.deltaTime;
 
                     // 檢查平台是否超過 Boss 的位置
-                    if (activePlatforms[i].transform.position.x > maxX)
+                    if (activePlatforms[i].transform.position.x > transform.position.x)
                     {
                         Destroy(activePlatforms[i]);
                         activePlatforms.RemoveAt(i);
@@ -872,11 +906,44 @@ public class BossController : MonoBehaviour
     }
 
 
+    // 其他代碼...
+
     IEnumerator DefeatSequence()
     {
+                if (player != null)
+        {
+            PlayerMovement pc = player.GetComponent<PlayerMovement>();
+            if (pc != null)
+            {
+                pc.EnableMovement();
+                Debug.Log("玩家移動已啟用");
+            }
+        }
+        
+        
         animator.SetTrigger("KneelTrigger");
         yield return new WaitForSeconds(3f);
-        Instantiate(portal, transform.position + Vector3.up * 2, Quaternion.identity);
+
+
+
+        // 生成傳送門在預設位置
+        if (portal != null)
+        {
+            GameObject portalInstance = Instantiate(portal);
+            portalInstance.transform.position = portal.transform.position; // 使用預製物的預設位置
+            portalInstance.transform.rotation = portal.transform.rotation; // 使用預製物的預設旋轉
+            Debug.Log($"傳送門生成於預設位置: {portalInstance.transform.position}");
+        }
+        else
+        {
+            Debug.LogError("傳送門預製物未設置！");
+        }
+
+        // 等待一段時間，讓玩家有時間看到傳送門
+        yield return new WaitForSeconds(1f);
+
+        // 傳送到其他關卡
+        SceneManager.LoadScene("NextLevel"); // 確保 "NextLevel" 是您在 Build Settings 中設置的場景名稱
     }
 
     private void Flip(float moveDirection)

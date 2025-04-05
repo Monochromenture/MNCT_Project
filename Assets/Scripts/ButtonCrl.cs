@@ -1,4 +1,4 @@
-using System.Collections;
+ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,15 +12,13 @@ public class ButtonCrl : MonoBehaviour
         Debug.Log("Game is quitting..."); // 在 Unity Editor 內部測試
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private bool isPaused = false;
+    public void TogglePause()
     {
-        
+        isPaused = !isPaused;
+        Time.timeScale = isPaused ? 0 : 1; // 暫停或恢復遊戲
+        Debug.Log(isPaused ? "Game is paused." : "Game is resumed.");
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
 }
