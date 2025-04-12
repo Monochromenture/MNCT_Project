@@ -2,10 +2,18 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    public int health = 2;
+    audiomanager audiomanager;
+
+    private void Awake()
+    {
+        audiomanager = GameObject.FindGameObjectWithTag("Audio").GetComponent<audiomanager>();
+    }
+
+    public int health = 1;
 
     public void TakeDamage(int damage)
     {
+        audiomanager.PlaySFX(audiomanager.enemyhitted);
         health -= damage;
         Debug.Log(gameObject.name + " took " + damage + " damage!");
 

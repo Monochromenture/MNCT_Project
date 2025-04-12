@@ -13,6 +13,13 @@ public class Weapon2 : MonoBehaviour
     private Collider2D weaponCollider;
     private float lastDamageTime; // 記錄上次傷害時間
 
+    private audiomanager audiomanager;
+
+    private void Awake()
+    {
+        audiomanager = GameObject.FindGameObjectWithTag("Audio").GetComponent<audiomanager>();
+    }
+
     void Start()
     {
         initialRotation = transform.localRotation;
@@ -21,7 +28,7 @@ public class Weapon2 : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && Time.time - lastAttackTime > attackCooldown)
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.V)) && Time.time - lastAttackTime > attackCooldown)
         {
             lastAttackTime = Time.time;
             StartCoroutine(SwingWeapon());
@@ -30,12 +37,13 @@ public class Weapon2 : MonoBehaviour
 
     private IEnumerator SwingWeapon()
     {
+        audiomanager.PlaySFX(audiomanager.swing);
         isAttacking = true;
         weaponCollider.enabled = true; // 啟用碰撞
         float elapsedTime = 0f;
 
-        Quaternion startRotation = Quaternion.Euler(0, 0, attackAngle / 2);
-        Quaternion endRotation = Quaternion.Euler(0, 0, -attackAngle / 2);
+        Quaternion startRotation = Quaternion.Euler(0, 0, -attackAngle / 2);
+        Quaternion endRotation = Quaternion.Euler(0, 0, attackAngle / 2);
 
         while (elapsedTime < attackDuration)
         {
@@ -47,10 +55,31 @@ public class Weapon2 : MonoBehaviour
 
         transform.localRotation = initialRotation;
         isAttacking = false;
-
         weaponCollider.enabled = false; // 關閉碰撞
-        yield return new WaitForSeconds(0.1f); // 延遲0.1秒再開啟碰撞
-        weaponCollider.enabled = true;
+        yield return new WaitForSeconds(0.1f);
+        weaponCollider.enabled = true; // 0.1秒後重新開啟碰撞
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (isAttacking)
+        {
+            if (collision.CompareTag("Enemy"))
+            {
+                Enemy enemy = collision.GetComponent<Enemy>();
+                EgirlController boss = collision.GetComponent<EgirlController>();
+
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(1);
+                }
+                else if (boss != null && Time.time - lastDamageTime > attackCooldown)
+                {
+                    boss.TakeDamage(1);
+                    lastDamageTime = Time.time;
+                }
+            }
+        }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -60,23 +89,9 @@ public class Weapon2 : MonoBehaviour
             EgirlController boss = collision.GetComponent<EgirlController>();
             if (boss != null)
             {
-                boss.TakeDamage(1); // 扣血
-                lastDamageTime = Time.time; // 更新上次扣血時間
-                Debug.Log($"Stay Hit: {collision.name}");
-            }
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (isAttacking && collision.CompareTag("Enemy"))
-        {
-            EgirlController boss = collision.GetComponent<EgirlController>();
-            if (boss != null)
-            {
                 boss.TakeDamage(1);
-                lastDamageTime = Time.time; // 第一次攻擊也要更新扣血時間
-                Debug.Log($"Hit: {collision.name}");
+                lastDamageTime = Time.time;
+                Debug.Log($"Stay Hit: {collision.name}");
             }
         }
     }

@@ -8,13 +8,40 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
-  - enabled: 0
-    path: Assets/Scenes/Level1-1.unity
+  - enabled: 1
+    path: Assets/Scenes/Open.unity
+    guid: 3cb8f9fd8ec1d2545a6b1adaadbad6df
+  - enabled: 1
+    path: Assets/Scenes/intro_cutscene.unity
+    guid: 85afe450289e38847b0c31145e4c0b63
+  - enabled: 1
+    path: Assets/Scenes/Lobby.unity
+    guid: 6694a9d39be7849418598924c94d8dc1
+  - enabled: 1
+    path: Assets/Scenes/1-1.unity
     guid: 2b00caefb8bb9d14b88de59164e2a6e4
-  - enabled: 0
-    path: Assets/Scenes/Level1-2.unity
+  - enabled: 1
+    path: Assets/Scenes/1-2.unity
     guid: e3dd8e02e577cf648ad018b007ce724c
   - enabled: 1
-    path: Assets/Scenes/Level1-Boss.unity
-    guid: cf83e3ed8daff66469df367d2af5f5ee
+    path: Assets/Scenes/lobby2.unity
+    guid: 451de808d0a237f4c918a0ac88c54d08
+  - enabled: 1
+    path: Assets/Scenes/2-1.unity
+    guid: 374bacdc47647b5418414371932820ed
+  - enabled: 1
+    path: Assets/Scenes/2-2.unity
+    guid: a36f678ed8c20f14cb072f58b73a962c
+  - enabled: 1
+    path: Assets/Scenes/lobby3.unity
+    guid: e0713ac896be33a4586b0731a384e619
+  - enabled: 1
+    path: Assets/Scenes/3-1.unity
+    guid: 8a676ce612940e740884ec5ff1a4d98c
+  - enabled: 1
+    path: Assets/Scenes/3-2.unity
+    guid: a172b1bdc734cb64bb45000da0b13700
+  - enabled: 1
+    path: Assets/Scenes/lobby end.unity
+    guid: bd6ac12fdcec3774ca5741263ff9a3b4
   m_configObjects: {}

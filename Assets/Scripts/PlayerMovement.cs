@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -15,33 +14,54 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
+    public float wallJumpForce = 12f;
+    public Vector2 wallJumpDirection = new Vector2(-1, 1);
 
     [Header("Jump Settings")]
     public bool enableDoubleJump = true;  // 是否開啟二段跳
     public bool enableAirJump = true;     // 是否開啟補救跳躍（離開地面後仍能跳一次）
+    public bool canWallJump = true;
+
+    [Header("Wall Sliding Settings")]
+    public bool enableWallSlide = true;
+    public float wallSlideSpeed = 2f;
 
     private Rigidbody2D rb;
     private bool canDoubleJump;
     private bool jumpPressed = false;
     private bool hasAirJumped = false; // 追蹤玩家是否已經執行過補救跳躍
+    private bool isWallSliding = false;
 
     [Header("Ground Check Settings")]
     public Transform groundCheck;
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
     public LayerMask platformLayer;
+    public Transform wallCheck;
+    public float wallCheckRadius = 0.2f;
+    public LayerMask wallLayer;
 
     public GameObject weapon1;
     public GameObject weapon2;
 
+    audiomanager audiomanager;
+
+    private bool canMove = true;
+    public Rigidbody2D rigid2D;
+
+    private void Awake()
+    {
+        audiomanager = GameObject.FindGameObjectWithTag("Audio").GetComponent<audiomanager>();
+    }
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        rigid2D = rb;
     }
 
     void Update()
     {
-
         if (!canMove)
             return;
 
@@ -49,18 +69,20 @@ public class PlayerMovement : MonoBehaviour
         ClampPlayerPosition();
 
         // 監聽跳躍按鍵
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             jumpPressed = true;
         }
-
-
-
     }
 
     private void FixedUpdate()
     {
+
+
+        if (!canMove) return;  // 加入這一行，防止 Stun 時角色繼續動作
+
         HandleJump();
+        HandleWallSlide();
     }
 
     private void MovePlayer()
@@ -88,73 +110,90 @@ public class PlayerMovement : MonoBehaviour
         anim.SetBool("Walk", Mathf.Abs(moveInput) > 0.1f);
     }
 
-    public void HandleJump()
+    private void HandleJump()
     {
         bool isGrounded = IsGrounded();
-
-        if (isGrounded)
-        {
-            canDoubleJump = true; // 角色落地時重置雙跳
-            hasAirJumped = false; // 角色落地時重置補救跳躍
-        }
-
-        if (jumpPressed)
-        {
-            if (isGrounded || (enableAirJump && !hasAirJumped))
-            {
-                Jump();
-                hasAirJumped = true; // 標記補救跳躍已執行
-
-                if (!isGrounded) // 如果已經在空中跳躍，則啟用雙跳
-                {
-                    canDoubleJump = false;
-                }
-            }
-            else if (enableDoubleJump && canDoubleJump)
-            {
-                Jump();
-                canDoubleJump = false; // 禁用雙跳
-            }
-
-            jumpPressed = false;
-        }
-
+        bool isTouchingWall = IsTouchingWall();
         bool isPlatform = IsPlatform();
 
-        if (isPlatform)
+        if (isGrounded || isPlatform)
         {
             canDoubleJump = true; // 角色落地時重置雙跳
             hasAirJumped = false; // 角色落地時重置補救跳躍
         }
 
+        if (isTouchingWall)
+        {
+            canDoubleJump = true;
+            hasAirJumped = false;
+        }
+
         if (jumpPressed)
         {
-            if (isPlatform || (enableAirJump && !hasAirJumped))
+            if (isTouchingWall && canWallJump)
             {
+                audiomanager.PlaySFX(audiomanager.Jump);
+                WallJump();
+            }
+            else if (isGrounded || isPlatform)
+            {
+                audiomanager.PlaySFX(audiomanager.Jump);
+                Jump();
+            }
+            else if (enableAirJump && !hasAirJumped && canDoubleJump)
+            {
+                audiomanager.PlaySFX(audiomanager.Jump);
                 Jump();
                 hasAirJumped = true; // 標記補救跳躍已執行
-
-                if (!isPlatform) // 如果已經在空中跳躍，則啟用雙跳
-                {
-                    canDoubleJump = false;
-                }
+                canDoubleJump = false;
             }
-            else if (enableDoubleJump && canDoubleJump)
+            else if (enableDoubleJump && canDoubleJump && !hasAirJumped)
             {
+                audiomanager.PlaySFX(audiomanager.Jump);
                 Jump();
                 canDoubleJump = false; // 禁用雙跳
+                hasAirJumped = true;
             }
 
             jumpPressed = false;
         }
+    }
 
+    private void HandleWallSlide()
+    {
+        bool isGrounded = IsGrounded();
+        bool isTouchingWall = IsTouchingWall();
 
+        if (enableWallSlide && isTouchingWall && !isGrounded && rb.velocity.y < 0)
+        {
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
+        }
+        else
+        {
+            isWallSliding = false;
+        }
     }
 
     private void Jump()
     {
         rb.velocity = new Vector2(rb.velocity.x, 0f);  // 重置垂直速度，避免影響跳躍高度
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+    }
+
+    private void WallJump()
+    {
+        if (!canWallJump) return;
+
+        float jumpDirection = PlayerSr.flipX ? 1f : -1f;
+
+        rb.velocity = Vector2.zero;
+        Vector2 jumpForce = new Vector2(jumpDirection * wallJumpForce, wallJumpForce * 1.2f);
+        rb.AddForce(jumpForce, ForceMode2D.Impulse);
+
+        isWallSliding = false;
+        hasAirJumped = false;
+        canDoubleJump = true;
     }
 
     private bool IsGrounded()
@@ -167,6 +206,10 @@ public class PlayerMovement : MonoBehaviour
         return Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, platformLayer);
     }
 
+    private bool IsTouchingWall()
+    {
+        return Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayer);
+    }
 
     private void ClampPlayerPosition()
     {
@@ -175,12 +218,6 @@ public class PlayerMovement : MonoBehaviour
         position.y = Mathf.Clamp(position.y, minBounds.y, maxBounds.y);
         transform.position = position;
     }
-
-    // 控制移動的旗標，預設可移動
-    private bool canMove = true;
-    public Rigidbody2D rigid2D;
-
-    // 新增 DisableMovement() 與 EnableMovement() 方法
 
     public void DisableMovement()
     {
@@ -191,18 +228,21 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log("玩家移動已禁用");
     }
 
-
     public void EnableMovement()
     {
         canMove = true;
         Debug.Log("玩家移動已恢復");
     }
 
-    // 假設玩家移動邏輯在 Update() 中（這裡僅作示意）
+    private Coroutine stunCoroutine;
 
     public void Stun(float duration)
     {
-        StartCoroutine(StunCoroutine(duration));
+        if (stunCoroutine != null)
+        {
+            StopCoroutine(stunCoroutine); // 停止之前的 Stun
+        }
+        stunCoroutine = StartCoroutine(StunCoroutine(duration));
     }
 
     IEnumerator StunCoroutine(float duration)
@@ -211,6 +251,5 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(duration);
         EnableMovement();
     }
-
-
 }
+

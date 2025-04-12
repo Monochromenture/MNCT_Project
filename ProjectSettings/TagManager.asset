@@ -8,22 +8,25 @@ TagManager:
   - Enemy
   - Checkpoint
   - Portal
-  - Boss
+  - Audio
+  - Wall
+  - stone
+  - ZoomTrigger
   - Airdrop
   - Platform
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - BarrageText
+  - Player
   - Water
   - UI
   - Ground
   - Enemy
   - Weapon
+  - past
+  - Wall
   - Platform
-  - Player
-  - 
   - 
   - 
   - 

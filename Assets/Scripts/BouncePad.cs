@@ -5,6 +5,13 @@ public class BouncePad2D : MonoBehaviour
     public float bounceForce = 80f;  // 彈跳力的強度
     public float bounceDampening = 0.5f;  // 彈跳減速系數，讓彈跳不那麼快速
 
+    audiomanager audiomanager;
+
+    public void Awake()
+    {
+        audiomanager = GameObject.FindGameObjectWithTag("Audio").GetComponent<audiomanager>();
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         // 確認碰到的是 GroundCheck，並且它的父物件是 Player
@@ -21,6 +28,7 @@ public class BouncePad2D : MonoBehaviour
                 float adjustedBounceForce = bounceForce * (1 - Mathf.Abs(playerRb.velocity.y) * bounceDampening);
 
                 // 給予向上的彈力
+                audiomanager.PlaySFX(audiomanager.springbounce);
                 playerRb.AddForce(Vector2.up * adjustedBounceForce, ForceMode2D.Impulse);
             }
         }

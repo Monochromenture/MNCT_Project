@@ -39,6 +39,8 @@ public class EgirlController : MonoBehaviour
     private float lastBarrageEndTime = 0f;
     private bool isBarrageAttacking = false;  // 新增旗標
 
+    private Vector3 defaultScale = new Vector3(1.2f, 1.2f, 1.2f); // 動畫的目標大小
+
 
 
     void Start()
@@ -47,11 +49,19 @@ public class EgirlController : MonoBehaviour
         currentState = BossState.Follow;
         StartCoroutine(AIUpdate());
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        transform.localScale = defaultScale;
 
     }
 
     private void Update()
     {
+        
+        // 確保大小在運行時保持為 1.5 倍
+        if (transform.localScale != defaultScale)
+        {
+            transform.localScale = defaultScale;
+        }
+
 
     }
 

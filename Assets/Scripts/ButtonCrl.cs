@@ -1,6 +1,7 @@
- using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ButtonCrl : MonoBehaviour
 {
@@ -19,6 +20,14 @@ public class ButtonCrl : MonoBehaviour
         Time.timeScale = isPaused ? 0 : 1; // ¼È°±©Î«ì´_¹CÀ¸
         Debug.Log(isPaused ? "Game is paused." : "Game is resumed.");
     }
+
+
+
+    public void BtnLoadScene(string targetScene)
+    {
+        SceneManager.LoadScene(targetScene); 
+    }
+
 
 
 }
