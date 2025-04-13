@@ -18,8 +18,10 @@ public class EgirlController : MonoBehaviour
     public float maxY = 20f;
     public float stopDistance = 2f;
 
-    public enum BossState { Idle, Follow, Kick, Punch, Barrage, GloveThrow, UwU, Pickup, GunAttack, Slash, Defeated }
+    public enum BossState { Idle, Follow, Kick, Punch, Barrage, GloveThrow, UwU, Pickup, GunAttack, Slash, Defeated, Hurt }
     private BossState currentState = BossState.Idle;
+
+    private BossState previousState; // 用於記錄受傷前的狀態
 
     public Animator animator;
     public Transform player;
@@ -39,7 +41,6 @@ public class EgirlController : MonoBehaviour
     private float lastBarrageEndTime = 0f;
     private bool isBarrageAttacking = false;  // 新增旗標
 
-    private Vector3 defaultScale = new Vector3(1.2f, 1.2f, 1.2f); // 動畫的目標大小
 
 
 
@@ -49,19 +50,11 @@ public class EgirlController : MonoBehaviour
         currentState = BossState.Follow;
         StartCoroutine(AIUpdate());
         player = GameObject.FindGameObjectWithTag("Player").transform;
-        transform.localScale = defaultScale;
 
     }
 
     private void Update()
     {
-        
-        // 確保大小在運行時保持為 1.5 倍
-        if (transform.localScale != defaultScale)
-        {
-            transform.localScale = defaultScale;
-        }
-
 
     }
 
@@ -102,6 +95,9 @@ public class EgirlController : MonoBehaviour
                     break;
                 case BossState.Slash:
                     StartCoroutine(SlashAttack());
+                    break;
+                case BossState.Hurt:
+                    StartCoroutine(HurtState());
                     break;
                 case BossState.Idle:
                     StartCoroutine(Idle());
@@ -173,6 +169,7 @@ public class EgirlController : MonoBehaviour
             animator.SetTrigger("PickupTrigger");
             yield break;
         }
+
 
         animator.SetTrigger("IdleTrigger");
         yield return new WaitForSeconds(5f);
@@ -258,6 +255,7 @@ public class EgirlController : MonoBehaviour
     IEnumerator KickAttack()
     {
         isAttacking = true;
+        FacePlayer();
         animator.SetTrigger("KickTrigger");
 
         float kickAnimDuration = 0.75f;
@@ -275,7 +273,9 @@ public class EgirlController : MonoBehaviour
 
     IEnumerator PunchAttack()
     {
+
         isAttacking = true;
+        FacePlayer();
         animator.SetTrigger("PunchTrigger");
 
         float punchAnimDuration = 0.75f;
@@ -306,8 +306,38 @@ public class EgirlController : MonoBehaviour
             yield break; // 如果手套攻擊正在進行，則跳過 BarrageAttack
         }
 
-        FacePlayer(); // 確保 Boss 朝向玩家
         isBarrageAttacking = true;
+
+
+        // 確保 Boss 與玩家拉開距離
+        float safeDistance = 8f; // 與玩家保持的安全距離
+        Vector3 targetPosition = transform.position;
+
+        if (player != null)
+        {
+            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+
+            // 如果距離不足，移動到安全距離
+            if (distanceToPlayer < safeDistance)
+            {
+                Vector3 directionAwayFromPlayer = (transform.position - player.position).normalized;
+                targetPosition = transform.position + directionAwayFromPlayer * (safeDistance - distanceToPlayer);
+
+                // 確保目標位置只改變 X 軸，Y 軸保持不變
+                targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
+                targetPosition.y = transform.position.y; // 固定 Y 軸位置
+
+                // 移動到目標位置
+                while (Mathf.Abs(transform.position.x - targetPosition.x) > 0.1f)
+                {
+                    transform.position = Vector2.MoveTowards(transform.position, targetPosition, followSpeed * Time.deltaTime);
+                    yield return null;
+                }
+            }
+        }
+
+
+        FacePlayer(); // 確保 Boss 朝向玩家
         animator.SetBool("IsBarrage", true);
 
         int barrageCount = Random.Range(5, 9); // 生成 5 到 8 個彈幕
@@ -462,6 +492,9 @@ public class EgirlController : MonoBehaviour
         health -= amount;
         Debug.Log("Boss 受傷, 現在血量：" + health);
         OnBossDamage?.Invoke();
+        previousState = currentState; // 記錄受傷前的狀態
+        currentState = BossState.Hurt;
+
 
         if (health <= 6 && !secondPhase)
         {
@@ -473,17 +506,31 @@ public class EgirlController : MonoBehaviour
 
         if (health <= 0)
         {
+     
             health = 0;
             currentState = BossState.Defeated;
             CancelSlashAttack(); // 取消 SlashAttack 並銷毀所有平台
             StartCoroutine(DefeatSequence());
         }
         else
-        {
+        {  
             StartCoroutine(InvincibilityTimer()); // 開始無敵計時
             StartCoroutine(InvincibilityFlash()); // 觸發閃爍
         }
     }
+
+    IEnumerator HurtState()
+    {
+
+        // 播放受傷動畫
+        animator.SetTrigger("HurtTrigger");
+
+        // 等待受傷動畫結束
+        yield return new WaitForSeconds(0.5f);
+
+        currentState = previousState;
+    }
+
 
 
     void CancelSlashAttack()
