@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class StoneEventHandler : MonoBehaviour
 {
     public GameObject textObject;
     public GameObject player; // 引用玩家物件
-    public GameObject otherObject; // 引用其他需要啟用/停用的物件
+    public List<GameObject> objectsToEnable; // 要啟用的物件列表
+    public List<GameObject> objectsToDisable; // 要停用的物件列表
     public AudioSource audioSource; // 用於播放音效的 AudioSource
 
     private PlayerMovement playerMovement;
@@ -37,30 +39,49 @@ public class StoneEventHandler : MonoBehaviour
         }
     }
 
-    // 動畫事件方法：啟用其他物件
-    public void EnableOtherObject()
+    // 動畫事件方法：啟用指定的物件
+    public void EnableObjects()
     {
-        if (otherObject != null)
+        foreach (var obj in objectsToEnable)
         {
-            otherObject.SetActive(true);
+            if (obj != null)
+            {
+                obj.SetActive(true);
+            }
         }
     }
 
-    // 動畫事件方法：停用其他物件
-    public void DisableOtherObject()
+    // 動畫事件方法：停用指定的物件
+    public void DisableObjects()
     {
-        if (otherObject != null)
+        foreach (var obj in objectsToDisable)
         {
-            otherObject.SetActive(false);
+            if (obj != null)
+            {
+                obj.SetActive(false);
+            }
         }
     }
 
     // 動畫事件方法：播放音效
     public void PlaySound()
     {
-        if (audioSource != null )
+        if (audioSource != null)
         {
             audioSource.Play();
+        }
+    }
+
+    // 動畫事件方法：切換場景
+    public void SwitchScene(string sceneName)
+    {
+        if (!string.IsNullOrEmpty(sceneName))
+        {
+            SceneManager.LoadScene(sceneName);
+        }
+        else
+        {
+            Debug.LogError("場景名稱無效或為空！");
         }
     }
 

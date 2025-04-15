@@ -190,6 +190,20 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 3.4166667
+    functionName: DisableObjects
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 3.4166667
+    functionName: EnableObjects
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 3.4166667
     functionName: InvokeAnimationEvent
     data: 
     objectReferenceParameter: {fileID: 0}

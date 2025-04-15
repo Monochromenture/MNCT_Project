@@ -14133,6 +14133,7 @@ MonoBehaviour:
   textObject: {fileID: 484676233}
   player: {fileID: 0}
   otherObject: {fileID: 0}
+  audioSource: {fileID: 0}
   onAnimationEvent:
     m_PersistentCalls:
       m_Calls: []
