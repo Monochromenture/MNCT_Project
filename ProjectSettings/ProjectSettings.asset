@@ -286,51 +286,9 @@ PlayerSettings:
   - m_BuildTarget: 
     m_Icons:
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 537d1534cc0a5184db409876ed7ae73f, type: 3}
+      m_Icon: {fileID: 2800000, guid: cab58431dfaae2144a6da1c0e884107e, type: 3}
       m_Width: 128
       m_Height: 128
-      m_Kind: 0
-  - m_BuildTarget: Standalone
-    m_Icons:
-    - serializedVersion: 2
-      m_Icon: {fileID: 0}
-      m_Width: 1024
-      m_Height: 1024
-      m_Kind: 0
-    - serializedVersion: 2
-      m_Icon: {fileID: 0}
-      m_Width: 512
-      m_Height: 512
-      m_Kind: 0
-    - serializedVersion: 2
-      m_Icon: {fileID: 0}
-      m_Width: 256
-      m_Height: 256
-      m_Kind: 0
-    - serializedVersion: 2
-      m_Icon: {fileID: 0}
-      m_Width: 128
-      m_Height: 128
-      m_Kind: 0
-    - serializedVersion: 2
-      m_Icon: {fileID: 0}
-      m_Width: 64
-      m_Height: 64
-      m_Kind: 0
-    - serializedVersion: 2
-      m_Icon: {fileID: 0}
-      m_Width: 48
-      m_Height: 48
-      m_Kind: 0
-    - serializedVersion: 2
-      m_Icon: {fileID: 0}
-      m_Width: 32
-      m_Height: 32
-      m_Kind: 0
-    - serializedVersion: 2
-      m_Icon: {fileID: 0}
-      m_Width: 16
-      m_Height: 16
       m_Kind: 0
   m_BuildTargetPlatformIcons:
   - m_BuildTarget: iPhone
@@ -907,7 +865,7 @@ PlayerSettings:
   hmiLogStartupTiming: 0
   hmiCpuConfiguration: 
   apiCompatibilityLevel: 6
-  activeInputHandler: 0
+  activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: d26d464d-bcd6-4727-813e-c0380edaf3c5
   framebufferDepthMemorylessMode: 0
