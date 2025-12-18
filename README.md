@@ -1,6 +1,6 @@
 # MONOCHROMETURE 
 #2D橫向平台 #冒險 #遊戲
-
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8ab74a1c-1b57-4bbb-a52a-82c0d519381f" />
 
 ## 專題介紹
 
@@ -14,6 +14,8 @@
 ## 實作功能
 #### 玩家操控
 - 移動控制 (左右移動、跳躍)
+- 二段跳
+- 蹬牆跳
 - 鏡頭跟隨玩家移動
 - 手持武器攻擊
 
@@ -39,7 +41,7 @@
 - 獲得關鍵道具，發光飛走動畫
 
 ## 遊玩畫面展示
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8ab74a1c-1b57-4bbb-a52a-82c0d519381f" />
+
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7be10d80-dca1-4534-9922-7514d0b8365e" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/df94045e-1db7-4ccf-ade3-ef7794d15bdc" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1d9ba321-7b97-4766-ba8b-57ab9cc4c0ab" />
