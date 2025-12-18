@@ -49,3 +49,6 @@
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/25abe93a-62ca-4f53-ae82-919a566a2323" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e16a26fd-19e1-4c31-9585-49d05bddf00d" />
 
+## 聲明
+- 本作品使用素材(圖片、音樂、內容......等)，其智慧財產權皆屬原創作者，未經同意請勿隨意引用
+- 本作品不作任何商業用途
